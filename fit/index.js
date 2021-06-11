@@ -8,6 +8,7 @@ const googleFit = async () => {
         document.getElementById('logOut').hidden = false;
         handleLogOut();
         if(!localStorage.googleFit || JSON.parse(localStorage.googleFit).access_token === undefined) localStorage.googleFit = JSON.stringify(parameters);
+        window.history.replaceState({},'', './');
         const access_token = parameters.access_token ? parameters.access_token : JSON.parse(localStorage.googleFit).access_token;
         
         const steps = await getUsersDataSet(access_token, 7);
