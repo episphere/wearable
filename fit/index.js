@@ -22,7 +22,7 @@ const googleFit = async () => {
             y, 
             type: 'bar', 
             id: 'plot',
-            title: 'Step Counts'
+            title: 'Last 7 days step counts'
         })
         return;
     }
