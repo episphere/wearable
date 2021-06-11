@@ -40,7 +40,7 @@ const plotHandler = async (days, access_token) => {
             y, 
             type: 'bar', 
             id: 'plot',
-            title: `Last ${days} days step counts`
+            title: `Last ${days} days step counts (total - ${y.reduce((a,b) => a+b)})`
         })
         return;
 }
