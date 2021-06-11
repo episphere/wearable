@@ -7,15 +7,16 @@ const googleFit = () => {
         document.getElementById('googleFit').hidden = true;
         document.getElementById('logOut').hidden = false;
         handleLogOut();
-        if(!localStorage.googleFit || JSON.parse(localStorage.googleFit).access_token === undefined) localStorage.googleFit = JSON.stringify(parameters);
+        if(!localStorage.googleFit) localStorage.googleFit = JSON.stringify(parameters);
         window.history.replaceState({},'', './');        
         const days = parseInt(document.getElementById('days').value);
         const access_token = parameters.access_token ? parameters.access_token : JSON.parse(localStorage.googleFit).access_token;
         plotHandler(days, access_token);
         daysEventHandler(access_token);
+    }else{
+        document.getElementById('googleFit').hidden = false;
+        document.getElementById('logOut').hidden = true;
     }
-    document.getElementById('googleFit').hidden = false;
-    document.getElementById('logOut').hidden = true;
     
     handleSignIn();
 }
@@ -38,7 +39,8 @@ const plotHandler = async (days, access_token) => {
         renderPlotlyCHart({
             x, 
             y, 
-            type: 'bar', 
+            type: 'scatter', 
+            type2: 'bar',
             id: 'plot',
             title: `Last ${days} days step counts (total - ${y.reduce((a,b) => a+b)})`
         })
@@ -51,7 +53,13 @@ const renderPlotlyCHart = (obj) => {
           x: obj.x,
           y: obj.y,
           type: obj.type
+        },
+        {
+            x: obj.x,
+            y: obj.y,
+            type: obj.type2
         }
+        
     ];
     const layout = {
         title: obj.title,
