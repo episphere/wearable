@@ -94,7 +94,7 @@ const handleSignIn = () => {
 const handleLogOut = () => {
     document.getElementById('logOut').addEventListener('click', () => {
         delete localStorage.googleFit;
-        location.href = window.location.origin+'/fit/';
+        location.href = location.reload();
     })
 }
 
