@@ -1,36 +1,48 @@
 let isAuthorized;
 let currentApiRequest;
 
-const googleFit = async () => {
+const googleFit = () => {
     let parameters = getparameters(decodeURIComponent(window.location.hash.replace('#','')))
     if(parameters.token_type === 'Bearer' || (localStorage.googleFit && JSON.parse(localStorage.googleFit).access_token)){
         document.getElementById('googleFit').hidden = true;
         document.getElementById('logOut').hidden = false;
         handleLogOut();
         if(!localStorage.googleFit || JSON.parse(localStorage.googleFit).access_token === undefined) localStorage.googleFit = JSON.stringify(parameters);
-        window.history.replaceState({},'', './');
+        window.history.replaceState({},'', './');        
+        const days = parseInt(document.getElementById('days').value);
         const access_token = parameters.access_token ? parameters.access_token : JSON.parse(localStorage.googleFit).access_token;
-        
-        const steps = await getUsersDataSet(access_token, 7);
-        if(steps.error) {
-            document.getElementById('plot').innerHTML = steps.error.message;
-            return;
-        }
-        const x = steps.bucket.map(dt => new Date(parseInt(dt.startTimeMillis)).toDateString());
-        const y = steps.bucket.map(dt =>dt.dataset[0]).map(dt => dt.point[0]).map(dt => dt.value[0]).map(dt => dt.intVal)
-        renderPlotlyCHart({
-            x, 
-            y, 
-            type: 'bar', 
-            id: 'plot',
-            title: 'Last 7 days step counts'
-        })
-        return;
+        plotHandler(days, access_token);
+        daysEventHandler(access_token);
     }
     document.getElementById('googleFit').hidden = false;
     document.getElementById('logOut').hidden = true;
     
     handleSignIn();
+}
+
+const daysEventHandler = (access_token) => {
+    document.getElementById('days').addEventListener('change', () => {
+        const days = parseInt(document.getElementById('days').value);
+        plotHandler(days, access_token);
+    })
+}
+
+const plotHandler = async (days, access_token) => {
+    const steps = await getUsersDataSet(access_token, days);
+        if(steps.error) {
+            document.getElementById('plot').innerHTML = steps.error.message;
+            return;
+        }
+        const x = steps.bucket.map(dt => new Date(parseInt(dt.startTimeMillis)).toDateString());
+        const y = steps.bucket.map(dt =>dt.dataset[0]).map(dt => dt.point && dt.point[0] ? dt.point[0] : 0).map(dt => dt.value && dt.value[0] ? dt.value[0] : 0).map(dt => dt.intVal ? dt.intVal : 0)
+        renderPlotlyCHart({
+            x, 
+            y, 
+            type: 'bar', 
+            id: 'plot',
+            title: `Last ${days} days step counts`
+        })
+        return;
 }
 
 const renderPlotlyCHart = (obj) => {
