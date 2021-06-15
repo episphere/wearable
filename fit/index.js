@@ -6,6 +6,8 @@ const googleFit = () => {
     if(parameters.token_type === 'Bearer' || (localStorage.googleFit && JSON.parse(localStorage.googleFit).access_token)){
         document.getElementById('googleFit').hidden = true;
         document.getElementById('logOut').hidden = false;
+        document.getElementById('inputFields').hidden = false;
+
         handleLogOut();
         if(!localStorage.googleFit) localStorage.googleFit = JSON.stringify(parameters);
         window.history.replaceState({},'', './');        
@@ -16,6 +18,7 @@ const googleFit = () => {
     }else{
         document.getElementById('googleFit').hidden = false;
         document.getElementById('logOut').hidden = true;
+        document.getElementById('inputFields').hidden = true;
     }
     
     handleSignIn();
@@ -78,6 +81,7 @@ const getAllDataSources = async (access_token) => {
 }
 
 const getUsersDataSet = async (access_token, days) => {
+    console.log(await getAllDataSources(access_token))
     const response = await fetch('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', {
         method:'POST',
         headers:{
@@ -89,7 +93,7 @@ const getUsersDataSet = async (access_token, days) => {
             }],
             "bucketByTime": { "durationMillis": 86400000 },
             "startTimeMillis": new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
-            "endTimeMillis": 1623431882198 
+            "endTimeMillis": new Date().getTime() 
         })
     })
     return await response.json();
