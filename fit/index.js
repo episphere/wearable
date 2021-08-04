@@ -105,7 +105,7 @@ const handleSignIn = () => {
         let config = {
             redirect_uri,
             'oauth2Endpoint': 'https://accounts.google.com/o/oauth2/v2/auth',
-            'clientId': '433406250563-mqbdjom6r2brjsd868dfi7lcd4kp8i0c.apps.googleusercontent.com',
+            'clientId': '1061219778575-6m60p9cvbgo8ga7r2042e43oudvjd8mj.apps.googleusercontent.com',
             'response_type': 'token',
             'include_granted_scopes': 'true',
             'state': 'pass-through value',
