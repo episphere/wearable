@@ -4,6 +4,7 @@ let currentApiRequest;
 const googleFit = () => {
     let parameters = getparameters(decodeURIComponent(window.location.hash.replace('#','')))
     if(parameters.token_type === 'Bearer' || (localStorage.googleFit && JSON.parse(localStorage.googleFit).access_token)){
+        handleGeoLocation();
         toggleVisibility('googleFit', true)
         toggleVisibility('logOut', false)
         toggleVisibility('inputFields', false)
@@ -142,6 +143,21 @@ const toggleVisibility = (id, hide) => {
     }
     else {
         document.getElementById(id).classList.remove('hidden');
+    }
+}
+
+const handleGeoLocation = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async position => {
+            let geolocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            const api = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${geolocation.lat},${geolocation.lng}&key=AIzaSyDe3Ewzl4x7hEX30EiQJ0tvXBtzd2Hghiw`;
+            console.log(api)
+            const getAddress = await fetch(api);
+            console.log(await getAddress.json())
+        });
     }
 }
 
