@@ -4,9 +4,9 @@ let currentApiRequest;
 const googleFit = () => {
     let parameters = getparameters(decodeURIComponent(window.location.hash.replace('#','')))
     if(parameters.token_type === 'Bearer' || (localStorage.googleFit && JSON.parse(localStorage.googleFit).access_token)){
-        document.getElementById('googleFit').hidden = true;
-        document.getElementById('logOut').hidden = false;
-        document.getElementById('inputFields').hidden = false;
+        toggleVisibility('googleFit', true)
+        toggleVisibility('logOut', false)
+        toggleVisibility('inputFields', false)
 
         handleLogOut();
         if(!localStorage.googleFit) localStorage.googleFit = JSON.stringify(parameters);
@@ -16,9 +16,9 @@ const googleFit = () => {
         plotHandler(days, access_token);
         daysEventHandler(access_token);
     }else{
-        document.getElementById('googleFit').hidden = false;
-        document.getElementById('logOut').hidden = true;
-        document.getElementById('inputFields').hidden = true;
+        toggleVisibility('googleFit', false)
+        toggleVisibility('logOut', true)
+        toggleVisibility('inputFields', true)
     }
     
     handleSignIn();
@@ -136,6 +136,14 @@ const getparameters = (query) => {
     return obj;
 }
 
+const toggleVisibility = (id, hide) => {
+    if (hide) {
+        document.getElementById(id).classList.add('hidden');
+    }
+    else {
+        document.getElementById(id).classList.remove('hidden');
+    }
+}
 
 window.onload = () => {
     googleFit()

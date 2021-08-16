@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     <title>Google Fit RestAPI</title>
 </head>
 <body>
-    <button id="googleFit">Access Google FIT data</button>
-    <button id="logOut" hidden="false">Log Out</button>
-    </br></br>
-    <div id="inputFields" hidden="true">
-        Days - <input type="number" id="days" value="7" max="90" min="1">
+    <div class="container m-2">
+        <button id="googleFit" type="button" class="m-2 inline-flex items-center justify-center p-2 rounded-md text-black-200 hover:text-white hover:bg-gray-700 focus:outline-black focus:ring-2 focus:ring-inset focus:ring-black bg-gray-200">Access Google FIT data</button>
+        <button aria-hidden="true" id="logOut" hidden="false" type="button" class="hidden m-2 inline-flex items-center justify-center p-2 rounded-md text-black-200 hover:text-white hover:bg-red-700 focus:outline-black focus:ring-2 focus:ring-inset focus:ring-black bg-red-200">Log Out</button>
+        <div id="inputFields" class="mb-10">
+            Days - <input type="number" id="days" value="7" max="90" min="1">
+        </div>
+        <div id="plot"></div>
     </div>
-    </br></br>
-    <div id="plot"></div>
     <script src="https://cdn.plot.ly/plotly-2.0.0.min.js"></script>
     <script src="./index.js"></script>
 </body>
