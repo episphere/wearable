@@ -153,10 +153,11 @@ const handleGeoLocation = () => {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
             };
-            const api = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${geolocation.lat},${geolocation.lng}&key=AIzaSyDe3Ewzl4x7hEX30EiQJ0tvXBtzd2Hghiw`;
-            console.log(api)
-            const getAddress = await fetch(api);
-            console.log(await getAddress.json())
+            const geocoder = new google.maps.Geocoder();
+            const response = await geocoder.geocode({ location: geolocation });
+            if(response.results.length > 0 ){
+                document.getElementById('address').innerHTML = `Current address - ${response.results[0].formatted_address}`
+            }
         });
     }
 }
