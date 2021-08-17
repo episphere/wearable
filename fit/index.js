@@ -68,7 +68,7 @@ const renderPlotlyCHart = (obj) => {
     const layout = {
         title: obj.title,
     };
-    Plotly.newPlot(obj.id, data, layout);
+    Plotly.newPlot(obj.id, data, layout, {responsive: true, displayModeBar: false});
 }
 
 const getAllDataSources = async (access_token) => {
