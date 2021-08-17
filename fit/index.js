@@ -157,7 +157,7 @@ const handleGeoLocation = () => {
             const geocoder = new google.maps.Geocoder();
             const response = await geocoder.geocode({ location: geolocation });
             if(response.results.length > 0 ){
-                document.getElementById('address').innerHTML = `Current address - ${response.results[0].formatted_address}`
+                document.getElementById('address').innerHTML = `Current location - ${response.results[0].formatted_address}`
             }
         });
     }
