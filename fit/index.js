@@ -38,7 +38,7 @@ const plotHandler = async (days, access_token) => {
             document.getElementById('plot').innerHTML = steps.error.message;
             return;
         }
-        const x = steps.bucket.map(dt => new Date(parseInt(dt.startTimeMillis)).toDateString());
+        const x = steps.bucket.map(dt => `${new Date(parseInt(dt.startTimeMillis)).getMonth() + 1}/${new Date(parseInt(dt.startTimeMillis)).getDate()}/${new Date(parseInt(dt.startTimeMillis)).getFullYear()}`);
         const y = steps.bucket.map(dt =>dt.dataset[0]).map(dt => dt.point && dt.point[0] ? dt.point[0] : 0).map(dt => dt.value && dt.value[0] ? dt.value[0] : 0).map(dt => dt.intVal ? dt.intVal : 0)
         renderPlotlyCHart({
             x, 
@@ -54,19 +54,26 @@ const plotHandler = async (days, access_token) => {
 const renderPlotlyCHart = (obj) => {
     const data = [
         {
-          x: obj.x,
-          y: obj.y,
-          type: obj.type
+            x: obj.x,
+            y: obj.y,
+            type: obj.type
         },
         {
             x: obj.x,
             y: obj.y,
-            type: obj.type2
+            type: obj.type2,
+            marker: {
+                color: 'rgb(49,130,189)',
+                opacity: 0.4,
+            }
         }
         
     ];
     const layout = {
         title: obj.title,
+        xaxis: {
+            tickangle: -45
+        }
     };
     Plotly.newPlot(obj.id, data, layout, {responsive: true, displayModeBar: false});
 }
@@ -157,7 +164,7 @@ const handleGeoLocation = () => {
             const geocoder = new google.maps.Geocoder();
             const response = await geocoder.geocode({ location: geolocation });
             if(response.results.length > 0 ){
-                document.getElementById('address').innerHTML = `Current location - ${response.results[0].formatted_address}`
+                document.getElementById('address').innerHTML = `Current location - ${response.results[0].formatted_address} </br> latitude: ${geolocation.lat} </br> longitude: ${geolocation.lng} </br> Accuracy: ${position.coords.accuracy} meters`
             }
         });
     }
