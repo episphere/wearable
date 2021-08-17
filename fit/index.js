@@ -148,6 +148,7 @@ const toggleVisibility = (id, hide) => {
 
 const handleGeoLocation = () => {
     if (navigator.geolocation) {
+        document.getElementById('address').innerHTML = 'Getting location ...';
         navigator.geolocation.getCurrentPosition(async position => {
             let geolocation = {
                 lat: position.coords.latitude,
