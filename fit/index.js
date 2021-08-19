@@ -1,39 +1,76 @@
 let isAuthorized;
 let currentApiRequest;
+let GoogleAuth; // Google Auth object.
 
-const googleFit = () => {
-    let parameters = getparameters(decodeURIComponent(window.location.hash.replace('#','')))
-    if(parameters.token_type === 'Bearer' || (localStorage.googleFit && JSON.parse(localStorage.googleFit).access_token)){
+const scope = 'https://www.googleapis.com/auth/fitness.activity.read';
+
+const initClient = () => {
+    gapi.client.init({
+        'apiKey': 'AIzaSyDe3Ewzl4x7hEX30EiQJ0tvXBtzd2Hghiw',
+        'clientId': '1061219778575-6m60p9cvbgo8ga7r2042e43oudvjd8mj.apps.googleusercontent.com',
+        'scope': scope
+    }).then(function () {
+        GoogleAuth = gapi.auth2.getAuthInstance();
+        GoogleAuth.isSignedIn.listen(setSigninStatus);
+        const signedIn = GoogleAuth.isSignedIn.get();
+        if(signedIn) setSigninStatus();
+    });
+}
+
+const handleAuthClick = () => {
+    if (GoogleAuth.isSignedIn.get()) {
+        GoogleAuth.signOut();
+        location.reload();
+    } else {
+        GoogleAuth.signIn();
+    }
+}
+
+const revokeAccess = () => {
+    GoogleAuth.disconnect();
+}
+
+const setSigninStatus = () => {
+    const user = GoogleAuth.currentUser.get();
+    const isAuthorized = user.hasGrantedScopes(scope);
+    if (isAuthorized) {
         handleGeoLocation();
         toggleVisibility('googleFit', true)
         toggleVisibility('logOut', false)
-        toggleVisibility('inputFields', false)
-
-        handleLogOut();
-        if(!localStorage.googleFit) localStorage.googleFit = JSON.stringify(parameters);
-        window.history.replaceState({},'', './');        
+        toggleVisibility('inputFields', false) 
         const days = parseInt(document.getElementById('days').value);
-        const access_token = parameters.access_token ? parameters.access_token : JSON.parse(localStorage.googleFit).access_token;
-        plotHandler(days, access_token);
-        daysEventHandler(access_token);
-    }else{
+        plotHandler(days);
+        daysEventHandler();
+    } else {
         toggleVisibility('googleFit', false)
         toggleVisibility('logOut', true)
         toggleVisibility('inputFields', true)
     }
-    
-    handleSignIn();
 }
 
-const daysEventHandler = (access_token) => {
+const daysEventHandler = () => {
     document.getElementById('days').addEventListener('change', () => {
         const days = parseInt(document.getElementById('days').value);
-        plotHandler(days, access_token);
+        plotHandler(days);
     })
 }
 
-const plotHandler = async (days, access_token) => {
-    const steps = await getUsersDataSet(access_token, days);
+const plotHandler = (days) => {
+    getAllDataSources()
+    const request = gapi.client.request({
+        'method': 'POST',
+        'path': '/fitness/v1/users/me/dataset:aggregate',
+        'body': JSON.stringify({    
+            "aggregateBy" : [{    
+                "dataSourceId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps"    
+            }],
+            "bucketByTime": { "durationMillis": 86400000 },
+            "startTimeMillis": new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
+            "endTimeMillis": new Date().getTime() 
+        })
+    });
+
+    request.execute((steps) => {
         if(steps.error) {
             document.getElementById('plot').innerHTML = steps.error.message;
             return;
@@ -48,7 +85,8 @@ const plotHandler = async (days, access_token) => {
             id: 'plot',
             title: `Last ${days} days step counts (total - ${y.reduce((a,b) => a+b)})`
         })
-        return;
+    });
+        
 }
 
 const renderPlotlyCHart = (obj) => {
@@ -78,70 +116,25 @@ const renderPlotlyCHart = (obj) => {
     Plotly.newPlot(obj.id, data, layout, {responsive: true, displayModeBar: false});
 }
 
-const getAllDataSources = async (access_token) => {
-    const response = await fetch('https://www.googleapis.com/fitness/v1/users/me/dataSources/', {
-        method:'GET',
-        headers:{
-            Authorization:`Bearer ${access_token}`
-        }
-    })
-    return await response.json();
-}
+const getAllDataSources = () => {
+    const request = gapi.client.request({
+        'method': 'GET',
+        'path': '/fitness/v1/users/me/dataSources/'
+    });
 
-const getUsersDataSet = async (access_token, days) => {
-    console.log(await getAllDataSources(access_token))
-    const response = await fetch('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate', {
-        method:'POST',
-        headers:{
-            Authorization:`Bearer ${access_token}`
-        },
-        body: JSON.stringify({    
-            "aggregateBy" : [{    
-                "dataSourceId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps"    
-            }],
-            "bucketByTime": { "durationMillis": 86400000 },
-            "startTimeMillis": new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
-            "endTimeMillis": new Date().getTime() 
-        })
-    })
-    return await response.json();
+    request.execute((response) => {
+        console.log(response.dataSource)
+    });
 }
 
 const handleSignIn = () => {
+    gapi.load('client', initClient);
     document.getElementById('googleFit').addEventListener('click', () => {
-        const redirect_uri = window.location;
-        let config = {
-            redirect_uri,
-            'oauth2Endpoint': 'https://accounts.google.com/o/oauth2/v2/auth',
-            'clientId': '1061219778575-6m60p9cvbgo8ga7r2042e43oudvjd8mj.apps.googleusercontent.com',
-            'response_type': 'token',
-            'include_granted_scopes': 'true',
-            'state': 'pass-through value',
-            'scope': ['https://www.googleapis.com/auth/fitness.activity.read']
-        }
-        oauthSignIn(config);
+        handleAuthClick();
     })
-}
-
-const handleLogOut = () => {
     document.getElementById('logOut').addEventListener('click', () => {
-        delete localStorage.googleFit;
-        location.reload();
+        handleAuthClick();
     })
-}
-
-const oauthSignIn = (config) => {
-    const url = `${config.oauth2Endpoint}?client_id=${config.clientId}&redirect_uri=${config.redirect_uri}&response_type=${config.response_type}&scope=${config.scope.join(' ')}`
-    location.href = url;
-}
-
-const getparameters = (query) => {
-    const array = query.split('&');
-    let obj = {};
-    array.forEach(value => {
-        obj[value.split('=')[0]] = value.split('=')[1];
-    });
-    return obj;
 }
 
 const toggleVisibility = (id, hide) => {
@@ -171,5 +164,5 @@ const handleGeoLocation = () => {
 }
 
 window.onload = () => {
-    googleFit()
+    handleSignIn()
 }
