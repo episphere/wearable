@@ -57,16 +57,17 @@ const daysEventHandler = () => {
 
 const plotHandler = (days) => {
     getAllDataSources()
+    // createDataSource()
     const request = gapi.client.request({
         'method': 'POST',
         'path': '/fitness/v1/users/me/dataset:aggregate',
         'body': JSON.stringify({    
-            "aggregateBy" : [{    
-                "dataSourceId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps"    
+            'aggregateBy' : [{    
+                'dataSourceId': 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'    
             }],
-            "bucketByTime": { "durationMillis": 86400000 },
-            "startTimeMillis": new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
-            "endTimeMillis": new Date().getTime() 
+            'bucketByTime': { 'durationMillis': 86400000 },
+            'startTimeMillis': new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
+            'endTimeMillis': new Date().getTime() 
         })
     });
 
@@ -127,7 +128,54 @@ const getAllDataSources = () => {
     });
 }
 
+const createDataSource = () => {
+    const request = gapi.client.request({
+        'method': 'POST',
+        'path': '/fitness/v1/users/me/dataSources/',
+        'body': JSON.stringify({    
+           'application': {
+               'name': 'GPS'
+           },
+           'dataType': {
+               'field': [
+                    {
+                        'format': 'floatPoint',
+                        'name': 'lat'
+                    },
+                    {
+                        'format': 'floatPoint',
+                        'name': 'lng'
+                    }
+               ],
+               'name': ''
+           },
+           'device': {
+                'manufacturer': window.navigator.vendor,
+                'model': window.navigator.userAgentData.brands[0].brand,
+                'type': 'phone',
+                'uid': window.navigator.productSub,
+                'version': window.navigator.userAgentData.brands[0].version
+            },
+            'type': 'raw'
+        })
+    });
+
+    request.execute((response) => {
+        console.log(response.dataSource)
+    });
+}
+
 const handleSignIn = () => {
+    if('serviceWorker' in navigator){
+        try {
+            navigator.serviceWorker.register('./serviceWorker.js')
+            .then((registration) => {
+            });
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
     gapi.load('client', initClient);
     document.getElementById('googleFit').addEventListener('click', () => {
         handleAuthClick();
