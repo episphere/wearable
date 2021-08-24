@@ -168,7 +168,7 @@ const createDataSource = () => {
 const handleSignIn = () => {
     if('serviceWorker' in navigator){
         try {
-            navigator.serviceWorker.register('./serviceWorker.js')
+            navigator.serviceWorker.register('./fit/serviceWorker.js')
             .then((registration) => {
             });
         }
