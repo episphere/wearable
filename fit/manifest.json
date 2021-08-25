@@ -4,7 +4,7 @@
     "theme_color": "#2a72a5",
     "background_color": "#ffffff",
     "display": "standalone",
-    "start_url": "/fit/",
+    "start_url": "/wearable/fit/",
     "icons": [
       {
         "src": "icons/icon-72x72.png",
