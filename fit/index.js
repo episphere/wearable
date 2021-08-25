@@ -57,6 +57,7 @@ const daysEventHandler = () => {
 
 const plotHandler = (days) => {
     getAllDataSources()
+    getDataSetBySourceId('com.google.heart_minutes', days);
     // createDataSource()
     const request = gapi.client.request({
         'method': 'POST',
@@ -80,29 +81,56 @@ const plotHandler = (days) => {
         const y = steps.bucket.map(dt =>dt.dataset[0]).map(dt => dt.point && dt.point[0] ? dt.point[0] : 0).map(dt => dt.value && dt.value[0] ? dt.value[0] : 0).map(dt => dt.intVal ? dt.intVal : 0)
         renderPlotlyCHart({
             x, 
-            y, 
-            type: 'scatter', 
-            type2: 'bar',
+            y,
+            type: 'bar',
             id: 'plot',
             title: `Last ${days} days step counts (total - ${y.reduce((a,b) => a+b)})`
-        })
-    });
-        
+        }, 'rgb(49,130,189)')
+    });  
 }
 
-const renderPlotlyCHart = (obj) => {
+const getDataSetBySourceId = (dataTypeName, days) => {
+    const request = gapi.client.request({
+        'method': 'POST',
+        'path': '/fitness/v1/users/me/dataset:aggregate',
+        'body': JSON.stringify({    
+            'aggregateBy' : [{
+                'dataTypeName': dataTypeName
+            }],
+            'bucketByTime': { 'durationMillis': 86400000 },
+            'startTimeMillis': new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
+            'endTimeMillis': new Date().getTime() 
+        })
+    });
+    request.execute((data) => {
+        if(data.error) {
+            document.getElementById('plot2').innerHTML = steps.error.message;
+            return;
+        }
+        dataProcessor(data, days);
+    })
+}
+
+const dataProcessor = (data, days) => {
+    const x = data.bucket.map(dt => `${new Date(parseInt(dt.startTimeMillis)).getMonth() + 1}/${new Date(parseInt(dt.startTimeMillis)).getDate()}/${new Date(parseInt(dt.startTimeMillis)).getFullYear()}`);
+    const y = data.bucket.map(dt =>dt.dataset[0]).map(dt => dt.point && dt.point[0] ? dt.point[0] : 0).map(dt => dt.value && dt.value[0] ? dt.value[0] : 0).map(dt => dt.fpVal ? dt.fpVal : 0)
+    renderPlotlyCHart({
+        x, 
+        y,
+        type: 'scatter',
+        id: 'plot2',
+        title: `Last ${days} days heart points (total - ${y.reduce((a,b) => a+b)})`
+    }, 'rgb(246,178,107)')
+}
+
+const renderPlotlyCHart = (obj, color) => {
     const data = [
         {
             x: obj.x,
             y: obj.y,
-            type: obj.type
-        },
-        {
-            x: obj.x,
-            y: obj.y,
-            type: obj.type2,
+            type: obj.type,
             marker: {
-                color: 'rgb(49,130,189)',
+                color: color,
                 opacity: 0.4,
             }
         }
