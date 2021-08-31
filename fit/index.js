@@ -37,9 +37,51 @@ const setSigninStatus = () => {
         handleGeoLocation();
         toggleVisibility('googleFit', true)
         toggleVisibility('logOut', false)
-        toggleVisibility('inputFields', false) 
-        const days = parseInt(document.getElementById('days').value);
-        plotHandler(days);
+        toggleVisibility('inputFields', false);
+
+        const date = new Date();
+        date.setDate(date.getDate() - 90);
+        const formattedDate = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? '0': ''}${date.getMonth()+1}-${date.getDate() < 10 ? '0': ''}${date.getDate()}T00:00`
+
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() - 6);
+        const defaultFormattedDate = `${defaultDate.getFullYear()}-${defaultDate.getMonth()+1 < 10 ? '0': ''}${defaultDate.getMonth()+1}-${defaultDate.getDate() < 10 ? '0': ''}${defaultDate.getDate()}T00:00`
+
+        const dateInputFrom = document.createElement('input');
+        dateInputFrom.id = 'dateRange';
+        dateInputFrom.type = 'datetime-local';
+        dateInputFrom.min = formattedDate;
+        dateInputFrom.value = defaultFormattedDate;
+        dateInputFrom.classList = ['appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'];
+
+        const dateLabelFrom = document.createElement('label');
+        dateLabelFrom.for = 'dateRange';
+        dateLabelFrom.classList = ['block text-gray-700 text-sm font-bold mb-2'];
+        dateLabelFrom.innerHTML = 'from:';
+
+        document.getElementById('dateRangeDiv').appendChild(dateLabelFrom)
+        document.getElementById('dateRangeDiv').appendChild(dateInputFrom)
+
+        const currentDate = new Date();
+
+        const dateInputTo = document.createElement('input');
+        dateInputTo.id = 'dateRangeTo';
+        dateInputTo.type = 'datetime-local';
+        dateInputTo.value = `${currentDate.getFullYear()}-${currentDate.getMonth()+1 < 10 ? '0': ''}${currentDate.getMonth()+1}-${currentDate.getDate() < 10 ? '0': ''}${currentDate.getDate()}T${currentDate.getHours() < 10 ? '0': ''}${currentDate.getHours()}:${currentDate.getMinutes() < 10 ? '0': ''}${currentDate.getMinutes()}`
+        dateInputTo.classList = ['appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'];
+
+        const dateLabelTo = document.createElement('label');
+        dateLabelTo.for = 'dateRange';
+        dateLabelTo.classList = ['block text-gray-700 text-sm font-bold mb-2'];
+        dateLabelTo.innerHTML = 'to:';
+
+        document.getElementById('dateRangeDiv').appendChild(dateLabelTo)
+        document.getElementById('dateRangeDiv').appendChild(dateInputTo)
+
+        const dateRangeStart = new Date(document.getElementById('dateRange').value).getTime()
+        const dateRangeEnd = new Date(document.getElementById('dateRangeTo').value).getTime();
+
+        plotHandler(dateRangeStart, dateRangeEnd);
         daysEventHandler();
     } else {
         toggleVisibility('googleFit', false)
@@ -49,15 +91,21 @@ const setSigninStatus = () => {
 }
 
 const daysEventHandler = () => {
-    document.getElementById('days').addEventListener('change', () => {
-        const days = parseInt(document.getElementById('days').value);
-        plotHandler(days);
+    document.getElementById('dateRange').addEventListener('change', () => {
+        const dateRangeStart = new Date(document.getElementById('dateRange').value).getTime()
+        const dateRangeEnd = new Date(document.getElementById('dateRangeTo').value).getTime();
+        plotHandler(dateRangeStart, dateRangeEnd);
+    })
+    document.getElementById('dateRangeTo').addEventListener('change', () => {
+        const dateRangeStart = new Date(document.getElementById('dateRange').value).getTime()
+        const dateRangeEnd = new Date(document.getElementById('dateRangeTo').value).getTime();
+        plotHandler(dateRangeStart, dateRangeEnd);
     })
 }
 
-const plotHandler = (days) => {
+const plotHandler = (dateRangeStart, dateRangeEnd) => {
     getAllDataSources()
-    getDataSetBySourceId('com.google.heart_minutes', days);
+    getDataSetBySourceId('com.google.heart_minutes', dateRangeStart, dateRangeEnd);
     // createDataSource()
     const request = gapi.client.request({
         'method': 'POST',
@@ -67,8 +115,8 @@ const plotHandler = (days) => {
                 'dataSourceId': 'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps'    
             }],
             'bucketByTime': { 'durationMillis': 86400000 },
-            'startTimeMillis': new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
-            'endTimeMillis': new Date().getTime() 
+            'startTimeMillis': dateRangeStart, 
+            'endTimeMillis': dateRangeEnd
         })
     });
 
@@ -84,12 +132,12 @@ const plotHandler = (days) => {
             y,
             type: 'bar',
             id: 'plot',
-            title: `Last ${days} days step counts (total - ${y.reduce((a,b) => a+b)})`
+            title: `Step counts #${y.reduce((a,b) => a+b)}`
         }, 'rgb(49,130,189)')
     });  
 }
 
-const getDataSetBySourceId = (dataTypeName, days) => {
+const getDataSetBySourceId = (dataTypeName, dateRangeStart, dateRangeEnd) => {
     const request = gapi.client.request({
         'method': 'POST',
         'path': '/fitness/v1/users/me/dataset:aggregate',
@@ -98,8 +146,8 @@ const getDataSetBySourceId = (dataTypeName, days) => {
                 'dataTypeName': dataTypeName
             }],
             'bucketByTime': { 'durationMillis': 86400000 },
-            'startTimeMillis': new Date(new Date().getTime() - ((days-1)*86400000)).setHours(0,0,0,0), 
-            'endTimeMillis': new Date().getTime() 
+            'startTimeMillis': dateRangeStart,
+            'endTimeMillis': dateRangeEnd
         })
     });
     request.execute((data) => {
@@ -107,19 +155,19 @@ const getDataSetBySourceId = (dataTypeName, days) => {
             document.getElementById('plot2').innerHTML = steps.error.message;
             return;
         }
-        dataProcessor(data, days);
+        dataProcessor(data, dateRangeStart, dateRangeEnd);
     })
 }
 
-const dataProcessor = (data, days) => {
+const dataProcessor = (data) => {
     const x = data.bucket.map(dt => `${new Date(parseInt(dt.startTimeMillis)).getMonth() + 1}/${new Date(parseInt(dt.startTimeMillis)).getDate()}/${new Date(parseInt(dt.startTimeMillis)).getFullYear()}`);
-    const y = data.bucket.map(dt =>dt.dataset[0]).map(dt => dt.point && dt.point[0] ? dt.point[0] : 0).map(dt => dt.value && dt.value[0] ? dt.value[0] : 0).map(dt => dt.fpVal ? dt.fpVal : 0)
+    const y = data.bucket.map(dt => dt.dataset[0]).map(dt => dt.point && dt.point[0] ? dt.point[0] : 0).map(dt => dt.value && dt.value[0] ? dt.value[0] : 0).map(dt => dt.fpVal ? dt.fpVal : 0)
     renderPlotlyCHart({
         x, 
         y,
         type: 'scatter',
         id: 'plot2',
-        title: `Last ${days} days heart points (total - ${y.reduce((a,b) => a+b)})`
+        title: `Heart points #${y.reduce((a,b) => a+b)}`
     }, 'rgb(246,178,107)')
 }
 

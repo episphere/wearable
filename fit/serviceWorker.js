@@ -34,4 +34,4 @@ registerRoute(
     'GET'
 );
 
-workbox.precaching.precacheAndRoute([{url: 'index.html', revision: '1.0.0'}]);
+workbox.precaching.precacheAndRoute([{url: 'index.html', revision: '1.0.3'}]);

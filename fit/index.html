@@ -16,11 +16,8 @@
         <button id="googleFit" type="button" class="m-2 inline-flex items-center justify-center p-2 rounded-md text-black-200 hover:text-white hover:bg-gray-700 focus:outline-black focus:ring-2 focus:ring-inset focus:ring-black bg-gray-200">Access Google FIT data</button>
         <button aria-hidden="true" id="logOut" hidden="false" type="button" class="hidden m-2 inline-flex items-center justify-center p-2 rounded-md text-black-200 hover:text-white hover:bg-red-700 focus:outline-black focus:ring-2 focus:ring-inset focus:ring-black bg-red-200 float-right">Log Out</button>
         <div id="inputFields" class="mb-10 ml-3 hidden">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="days">
-                    # Days
-                </label>
-                <input class="appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="days" value="7" max="90" min="1" type="number" placeholder="# days">
+            <div id="dateRangeDiv" class="mb-4">
+                Date range
             </div>
         </div>
         <div id="plot" class="ml-3"></div>
