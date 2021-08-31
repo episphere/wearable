@@ -38,7 +38,7 @@ const setSigninStatus = () => {
         toggleVisibility('googleFit', true)
         toggleVisibility('logOut', false)
         toggleVisibility('inputFields', false);
-
+        const currentDate = new Date();
         const date = new Date();
         date.setDate(date.getDate() - 89);
         const formattedDate = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? '0': ''}${date.getMonth()+1}-${date.getDate() < 10 ? '0': ''}${date.getDate()}T00:00`
@@ -62,8 +62,6 @@ const setSigninStatus = () => {
 
         document.getElementById('dateRangeDiv').appendChild(dateLabelFrom)
         document.getElementById('dateRangeDiv').appendChild(dateInputFrom)
-
-        const currentDate = new Date();
 
         const dateInputTo = document.createElement('input');
         dateInputTo.id = 'dateRangeTo';
