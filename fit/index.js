@@ -40,7 +40,7 @@ const setSigninStatus = () => {
         toggleVisibility('inputFields', false);
 
         const date = new Date();
-        date.setDate(date.getDate() - 90);
+        date.setDate(date.getDate() - 89);
         const formattedDate = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? '0': ''}${date.getMonth()+1}-${date.getDate() < 10 ? '0': ''}${date.getDate()}T00:00`
 
         const defaultDate = new Date();
