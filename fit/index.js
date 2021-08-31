@@ -51,6 +51,7 @@ const setSigninStatus = () => {
         dateInputFrom.id = 'dateRange';
         dateInputFrom.type = 'datetime-local';
         dateInputFrom.min = formattedDate;
+        dateInputFrom.max = `${currentDate.getFullYear()}-${currentDate.getMonth()+1 < 10 ? '0': ''}${currentDate.getMonth()+1}-${currentDate.getDate() < 10 ? '0': ''}${currentDate.getDate()}T${currentDate.getHours() < 10 ? '0': ''}${currentDate.getHours()}:${currentDate.getMinutes() < 10 ? '0': ''}${currentDate.getMinutes()}`;
         dateInputFrom.value = defaultFormattedDate;
         dateInputFrom.classList = ['appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'];
 
