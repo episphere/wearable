@@ -39,6 +39,7 @@ const setSigninStatus = () => {
         toggleVisibility('logOut', false)
         toggleVisibility('inputFields', false);
         const currentDate = new Date();
+        const currentFormattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth()+1 < 10 ? '0': ''}${currentDate.getMonth()+1}-${currentDate.getDate() < 10 ? '0': ''}${currentDate.getDate()}T${currentDate.getHours() < 10 ? '0': ''}${currentDate.getHours()}:${currentDate.getMinutes() < 10 ? '0': ''}${currentDate.getMinutes()}`;
         const date = new Date();
         date.setDate(date.getDate() - 89);
         const formattedDate = `${date.getFullYear()}-${date.getMonth()+1 < 10 ? '0': ''}${date.getMonth()+1}-${date.getDate() < 10 ? '0': ''}${date.getDate()}T00:00`
@@ -51,7 +52,7 @@ const setSigninStatus = () => {
         dateInputFrom.id = 'dateRange';
         dateInputFrom.type = 'datetime-local';
         dateInputFrom.min = formattedDate;
-        dateInputFrom.max = `${currentDate.getFullYear()}-${currentDate.getMonth()+1 < 10 ? '0': ''}${currentDate.getMonth()+1}-${currentDate.getDate() < 10 ? '0': ''}${currentDate.getDate()}T${currentDate.getHours() < 10 ? '0': ''}${currentDate.getHours()}:${currentDate.getMinutes() < 10 ? '0': ''}${currentDate.getMinutes()}`;
+        dateInputFrom.max = currentFormattedDate
         dateInputFrom.value = defaultFormattedDate;
         dateInputFrom.classList = ['appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'];
 
@@ -66,6 +67,8 @@ const setSigninStatus = () => {
         const dateInputTo = document.createElement('input');
         dateInputTo.id = 'dateRangeTo';
         dateInputTo.type = 'datetime-local';
+        dateInputTo.min = formattedDate;
+        dateInputTo.max = currentFormattedDate
         dateInputTo.value = `${currentDate.getFullYear()}-${currentDate.getMonth()+1 < 10 ? '0': ''}${currentDate.getMonth()+1}-${currentDate.getDate() < 10 ? '0': ''}${currentDate.getDate()}T${currentDate.getHours() < 10 ? '0': ''}${currentDate.getHours()}:${currentDate.getMinutes() < 10 ? '0': ''}${currentDate.getMinutes()}`
         dateInputTo.classList = ['appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'];
 
