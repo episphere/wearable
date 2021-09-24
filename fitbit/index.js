@@ -13,7 +13,6 @@ const dashboard = async () => {
         document.getElementById('accessFitBitData').hidden = false;
         const accessFitBitData = document.getElementById('accessFitBitData');
         accessFitBitData.addEventListener('click', async () => {
-            const checkboxes = Array.from(document.getElementsByName('fitbitScopes'));
             const scopes = ['profile', 'activity', 'heartrate', 'location', 'nutrition', 'sleep', 'weight']
             const oauthUrl = `https://www.fitbit.com/oauth2/authorize?client_id=23BC5Y&redirect_uri=${location.href}&response_type=token&scope=${scopes.join('%20')}`;
             location.href = oauthUrl;
@@ -51,7 +50,15 @@ const dashboard = async () => {
               
             Plotly.newPlot(replacedType, data, layout, config );
         }
-
+        const getActivityList = await getData(`https://api.fitbit.com/1/user/-/activities/list.json?limit=10&sort=desc&afterDate=2021-08-23&sort=asc&offset=0`, access_token)
+        console.log(getActivityList)
+        const getLocation = await fetch(`https://api.fitbit.com/1/user/-/activities/42957438966.tcx`, {
+            method: 'GET',
+            headers:{
+                Authorization:"Bearer "+ access_token
+            }
+        })
+        console.log(await getLocation.text());
     }
 }
 
@@ -59,7 +66,8 @@ const getData = async (url, access_token) => {
     const response = await fetch(url, {
         method: 'GET',
         headers:{
-            Authorization:"Bearer "+ access_token
+            Authorization: 'Bearer '+ access_token,
+            'Accept-Language': 'en_US'
         }
     })
     if(response.status === 401) delete localStorage.fitbit;
