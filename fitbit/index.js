@@ -20,11 +20,12 @@ const dashboard = async () => {
     }
     else if(localStorage.fitbit && JSON.parse(localStorage.fitbit).access_token) {
         const access_token = JSON.parse(localStorage.fitbit).access_token;
+        
         const getProfile = await getData(`https://api.fitbit.com/1/user/-/profile.json`, access_token);
         document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile.user.fullName}`;
-        const resourceTypes = ['activities/tracker/activityCalories', 'activities/tracker/steps', 'activities/tracker/distance', 'activities/tracker/floors']
+        const resourceTypes = ['activities/steps', 'activities/calories', 'activities/distance', 'activities/floors', 'activities/elevation']
         for(let type of resourceTypes) {
-            const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}/date/today/1m.json`, access_token)
+            const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}/date/today/1y.json`, access_token)
             const replacedType = type.replace(/\//g, '-');
             const div = document.createElement('div');
             div.id = replacedType;
@@ -55,7 +56,7 @@ const dashboard = async () => {
         const getLocation = await fetch(`https://api.fitbit.com/1/user/-/activities/42957438966.tcx`, {
             method: 'GET',
             headers:{
-                Authorization:"Bearer "+ access_token
+                Authorization:'Bearer ' + access_token
             }
         })
         console.log(await getLocation.text());
@@ -66,7 +67,7 @@ const getData = async (url, access_token) => {
     const response = await fetch(url, {
         method: 'GET',
         headers:{
-            Authorization: 'Bearer '+ access_token,
+            Authorization: 'Bearer ' + access_token,
             'Accept-Language': 'en_US'
         }
     })
@@ -81,6 +82,18 @@ const getparameters = (query) => {
         obj[value.split('=')[0]] = value.split('=')[1];
     });
     return obj;
+}
+
+const xmltoJSON = (xml) => {
+    let obj = {};
+    xml = xml.substr(xml.lastIndexOf('?>') + 2, xml.length).replace(/\n/g,'')
+    xml.replace(/<\w+/g, matched => {
+        const innerAttributes = xml.substr(xml.indexOf(matched), xml.indexOf('>')+1);
+        obj[matched.replace('<', '')] = '';
+    })
+    console.log(obj)
+    
+
 }
 
 window.onload = () => {
