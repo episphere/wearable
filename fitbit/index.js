@@ -31,22 +31,102 @@ const dashboard = async () => {
             <button type="button" class="btn btn-outline-primary" id="donateData">Donate</button>
         </div>
         `;
-        const resourceTypes = ['activities/steps', 'activities/calories', 'activities/distance', 'activities/floors', 'activities/elevation'];
+        const resourceTypes = {
+            'activities/steps': {
+                endPoint: '/date/today/1y',
+                responseObj: 'activities-steps',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'activities/calories': {
+                endPoint: '/date/today/1y',
+                responseObj: 'activities-calories',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'activities/distance': {
+                endPoint: '/date/today/1y',
+                responseObj: 'activities-distance',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'activities/floors': {
+                endPoint: '/date/today/1y',
+                responseObj: 'activities-floors',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'activities/elevation': {
+                endPoint: '/date/today/1y',
+                responseObj: 'activities-elevation',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'body/weight': {
+                endPoint: '/date/today/1y',
+                responseObj: 'body-weight',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'body/bmi': {
+                endPoint: '/date/today/1y',
+                responseObj: 'body-bmi',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'body/fat': {
+                endPoint: '/date/today/1y',
+                responseObj: 'body-fat',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'foods/log/caloriesIn': {
+                endPoint: '/date/today/1y',
+                responseObj: 'foods-log-caloriesIn',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'foods/log/water': {
+                endPoint: '/date/today/1y',
+                responseObj: 'foods-log-water',
+                x: 'dateTime',
+                y: 'value'
+            },
+            'activities/heart': {
+                endPoint: '/date/today/1m',
+                responseObj: 'activities-heart',
+                x: 'dateTime',
+                y: 'value',
+                nestedY: 'restingHeartRate',
+            },
+            'sleep': {
+                endPoint: '/list',
+                parameters: `?beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0&limit=100`,
+                responseObj: 'sleep',
+                x: 'dateOfSleep',
+                y: 'duration'
+            }
+        }
         let jsonData = {
             fitBitId: getProfile.user.encodedId
         };
-        for(let type of resourceTypes) {
-            const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}/date/today/1y.json`, access_token)
-            const replacedType = type.replace(/\//g, '-');
+        for(let type in resourceTypes) {
+            const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}${resourceTypes[type].endPoint}.json${resourceTypes[type].parameters ? resourceTypes[type].parameters : ''}`, access_token)
             jsonData[type] = {}
-            jsonData[type] = getActivity[replacedType];
+            if(getActivity.success === false) {
+                jsonData[type] = getActivity.errors[0].message;
+                continue;
+            }
+            const responseType = resourceTypes[type].responseObj;
+            jsonData[type] = getActivity[responseType];
             const div = document.createElement('div');
-            div.id = replacedType;
+            div.id = responseType;
             document.getElementById('mainDiv').appendChild(div);
+            
             const trace1 = {
                 type: 'bar',
-                x: getActivity[replacedType].map(dt=> dt.dateTime),
-                y: getActivity[replacedType].map(dt=> dt.value),
+                x: getActivity[responseType].map(dt=> dt[resourceTypes[type].x]),
+                y: getActivity[responseType].map(dt=> resourceTypes[type].nestedY ? dt[resourceTypes[type].y][resourceTypes[type].nestedY] : dt[resourceTypes[type].y]),
                 opacity: 0.5,
                 marker: {
                     color: 'rgb(49,130,189)'
@@ -56,24 +136,24 @@ const dashboard = async () => {
             const data = [ trace1 ];
               
             const layout = { 
-                title: replacedType,
+                title: responseType,
                 font: {size: 18}
             };
               
             const config = {responsive: true}
               
-            Plotly.newPlot(replacedType, data, layout, config );
+            Plotly.newPlot(responseType, data, layout, config );
         }
         downloadJSONFile(jsonData)
         const getActivityList = await getData(`https://api.fitbit.com/1/user/-/activities/list.json?limit=10&sort=desc&afterDate=2021-08-23&sort=asc&offset=0`, access_token)
-        console.log(getActivityList)
+        // console.log(getActivityList)
         const getLocation = await fetch(`https://api.fitbit.com/1/user/-/activities/42957438966.tcx`, {
             method: 'GET',
             headers:{
                 Authorization:'Bearer ' + access_token
             }
         })
-        console.log(await getLocation.text());
+        // console.log(await getLocation.text());
     }
 }
 
