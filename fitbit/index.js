@@ -26,8 +26,10 @@ const dashboard = async () => {
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
         <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
         <div class="mb-3">Now we are asking you to provide similar information by donating data available from your fitness trackers and mobile phone.  This includes sleep, physical activity, and location data.</div>
-        To give permission for the study to access these data, please
-        <button type="button" class="btn btn-outline-primary" id="donateData">Donate</button>
+        <div class="mb-3">
+            To give permission for the study to access these data, please
+            <button type="button" class="btn btn-outline-primary" id="donateData">Donate</button>
+        </div>
         `;
         const resourceTypes = ['activities/steps', 'activities/calories', 'activities/distance', 'activities/floors', 'activities/elevation'];
         let jsonData = {
