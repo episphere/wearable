@@ -22,11 +22,22 @@ const dashboard = async () => {
         const access_token = JSON.parse(localStorage.fitbit).access_token;
         
         const getProfile = await getData(`https://api.fitbit.com/1/user/-/profile.json`, access_token);
-        document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile.user.fullName}`;
-        const resourceTypes = ['activities/steps', 'activities/calories', 'activities/distance', 'activities/floors', 'activities/elevation']
+        document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile.user.fullName}
+        <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
+        <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
+        <div class="mb-3">Now we are asking you to provide similar information by donating data available from your fitness trackers and mobile phone.  This includes sleep, physical activity, and location data.</div>
+        To give permission for the study to access these data, please
+        <button type="button" class="btn btn-outline-primary" id="donateData">Donate</button>
+        `;
+        const resourceTypes = ['activities/steps', 'activities/calories', 'activities/distance', 'activities/floors', 'activities/elevation'];
+        let jsonData = {
+            fitBitId: getProfile.user.encodedId
+        };
         for(let type of resourceTypes) {
             const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}/date/today/1y.json`, access_token)
             const replacedType = type.replace(/\//g, '-');
+            jsonData[type] = {}
+            jsonData[type] = getActivity[replacedType];
             const div = document.createElement('div');
             div.id = replacedType;
             document.getElementById('mainDiv').appendChild(div);
@@ -51,6 +62,7 @@ const dashboard = async () => {
               
             Plotly.newPlot(replacedType, data, layout, config );
         }
+        downloadJSONFile(jsonData)
         const getActivityList = await getData(`https://api.fitbit.com/1/user/-/activities/list.json?limit=10&sort=desc&afterDate=2021-08-23&sort=asc&offset=0`, access_token)
         console.log(getActivityList)
         const getLocation = await fetch(`https://api.fitbit.com/1/user/-/activities/42957438966.tcx`, {
@@ -61,6 +73,19 @@ const dashboard = async () => {
         })
         console.log(await getLocation.text());
     }
+}
+
+const downloadJSONFile = (data) => {
+    const donateData = document.getElementById('donateData');
+    donateData.addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href",     dataStr);
+        downloadAnchorNode.setAttribute("download", "activity_data.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    })
 }
 
 const getData = async (url, access_token) => {
