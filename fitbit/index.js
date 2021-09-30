@@ -28,7 +28,12 @@ const dashboard = async () => {
         <div class="mb-3">Now we are asking you to provide similar information by donating data available from your fitness trackers and mobile phone.  This includes sleep, physical activity, and location data.</div>
         <div class="mb-3">
             To give permission for the study to access these data, please
-            <button type="button" class="btn btn-outline-primary disabled" disabled id="donateData">Donate</button>
+            <button type="button" class="btn btn-outline-primary disabled" disabled id="donateData">
+                <div class="spinner-border" role="status" style="height: 1rem; width: 1rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div> 
+                Donate
+            </button>
         </div>
         `;
         const resourceTypes = {
@@ -168,11 +173,7 @@ const dashboard = async () => {
               
             Plotly.newPlot(responseType, data, layout, config );
         }
-        downloadJSONFile(jsonData)
-        // const getActivityList = await getData(`https://api.fitbit.com/1/user/-/activities/list.json?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`, access_token)
-        // console.log(getActivityList)
-        // const activities = getActivityList.activities;
-        
+        downloadJSONFile(jsonData);
     }
 }
 
@@ -180,6 +181,7 @@ const downloadJSONFile = (data) => {
     const donateData = document.getElementById('donateData');
     donateData.classList.remove('disabled');
     donateData.disabled = false;
+    donateData.innerHTML = 'Donate';
     donateData.addEventListener('click', () => {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
         const downloadAnchorNode = document.createElement('a');
