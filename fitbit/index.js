@@ -32,6 +32,12 @@ const dashboard = async () => {
         </div>
         `;
         const resourceTypes = {
+            'activities': {
+                endPoint: '/list',
+                parameters: `?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`,
+                responseObj: 'activities',
+                location: true
+            },
             'activities/steps': {
                 endPoint: '/date/today/1y',
                 responseObj: 'activities-steps',
@@ -111,18 +117,36 @@ const dashboard = async () => {
             fitBitId: getProfile.user.encodedId
         };
         for(let type in resourceTypes) {
+            const responseType = resourceTypes[type].responseObj;
             const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}${resourceTypes[type].endPoint}.json${resourceTypes[type].parameters ? resourceTypes[type].parameters : ''}`, access_token)
             jsonData[type] = {}
             if(getActivity.success === false) {
                 jsonData[type] = getActivity.errors[0].message;
                 continue;
             }
-            const responseType = resourceTypes[type].responseObj;
+            
             jsonData[type] = getActivity[responseType];
+            
+            if(resourceTypes[type].location) {
+                let i = 0;
+                for(let activity of getActivity[responseType]) {
+                    const getLocation = await fetch(activity.tcxLink, {
+                        method: 'GET',
+                        headers:{
+                            Authorization:'Bearer ' + access_token
+                        }
+                    })
+                    const locationXML = await getLocation.text();
+                    jsonData[type][i].location = locationXML
+                    i++;
+                    console.log(locationXML);
+                }
+            }
+            
             const div = document.createElement('div');
             div.id = responseType;
             document.getElementById('mainDiv').appendChild(div);
-            
+            if(!resourceTypes[type].x && !resourceTypes[type].y) continue;
             const trace1 = {
                 type: 'bar',
                 x: getActivity[responseType].map(dt=> dt[resourceTypes[type].x]),
@@ -145,22 +169,17 @@ const dashboard = async () => {
             Plotly.newPlot(responseType, data, layout, config );
         }
         downloadJSONFile(jsonData)
-        const getActivityList = await getData(`https://api.fitbit.com/1/user/-/activities/list.json?limit=10&sort=desc&afterDate=2021-08-23&sort=asc&offset=0`, access_token)
+        // const getActivityList = await getData(`https://api.fitbit.com/1/user/-/activities/list.json?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`, access_token)
         // console.log(getActivityList)
-        const getLocation = await fetch(`https://api.fitbit.com/1/user/-/activities/42957438966.tcx`, {
-            method: 'GET',
-            headers:{
-                Authorization:'Bearer ' + access_token
-            }
-        })
-        // console.log(await getLocation.text());
+        // const activities = getActivityList.activities;
+        
     }
 }
 
 const downloadJSONFile = (data) => {
     const donateData = document.getElementById('donateData');
     donateData.classList.remove('disabled');
-    donateData.disabled = false
+    donateData.disabled = false;
     donateData.addEventListener('click', () => {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
         const downloadAnchorNode = document.createElement('a');
