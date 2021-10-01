@@ -41,64 +41,64 @@ const dashboard = async () => {
                 endPoint: '/list',
                 parameters: `?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`,
                 responseObj: 'activities',
-                location: true
+                location: false
             },
             'activities/steps': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'activities-steps',
                 x: 'dateTime',
                 y: 'value'
             },
             'activities/calories': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'activities-calories',
                 x: 'dateTime',
                 y: 'value'
             },
             'activities/distance': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'activities-distance',
                 x: 'dateTime',
                 y: 'value'
             },
             'activities/floors': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'activities-floors',
                 x: 'dateTime',
                 y: 'value'
             },
             'activities/elevation': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'activities-elevation',
                 x: 'dateTime',
                 y: 'value'
             },
             'body/weight': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'body-weight',
                 x: 'dateTime',
                 y: 'value'
             },
             'body/bmi': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'body-bmi',
                 x: 'dateTime',
                 y: 'value'
             },
             'body/fat': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'body-fat',
                 x: 'dateTime',
                 y: 'value'
             },
             'foods/log/caloriesIn': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'foods-log-caloriesIn',
                 x: 'dateTime',
                 y: 'value'
             },
             'foods/log/water': {
-                endPoint: '/date/today/1y',
+                endPoint: '/date/today/1m',
                 responseObj: 'foods-log-water',
                 x: 'dateTime',
                 y: 'value'
@@ -148,10 +148,14 @@ const dashboard = async () => {
                 }
             }
             
-            const div = document.createElement('div');
-            div.id = responseType;
-            document.getElementById('mainDiv').appendChild(div);
             if(!resourceTypes[type].x && !resourceTypes[type].y) continue;
+            const div = document.createElement('div');
+            div.classList = ['card p-2 mt-2 mb-2'];
+            const subDiv = document.createElement('div');
+            subDiv.classList = ['card-body m-2'];
+            subDiv.id = responseType;
+            div.appendChild(subDiv);
+            document.getElementById('mainDiv').appendChild(div);
             const trace1 = {
                 type: 'bar',
                 x: getActivity[responseType].map(dt=> dt[resourceTypes[type].x]),
