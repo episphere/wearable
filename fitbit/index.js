@@ -55,11 +55,10 @@ const dashboard = async () => {
         divLifeTime.appendChild(createCard('# Life time steps <i class="fas fa-shoe-prints"></i>', getStats.lifetime.total.steps));
         document.getElementById('mainDiv').appendChild(divLifeTime);
 
-        console.log(getStats)
-
         let jsonData = {
             fitBitId: getProfile.user.encodedId
         };
+        jsonData['Stats'] = getStats;
         for(let type in resourceTypes) {
             const responseType = resourceTypes[type].responseObj;
             const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}${resourceTypes[type].endPoint}.json${resourceTypes[type].parameters ? resourceTypes[type].parameters : ''}`, access_token)
@@ -208,10 +207,14 @@ const resourceTypes = {
 
 const createCard = (header, value) => {
     const div = document.createElement('div');
-    div.classList = ['card stats-card col m-2'];
-    div.innerHTML = `
+    div.classList = ['col-md p-2'];
+
+    const subDiv = document.createElement('div');
+    subDiv.classList = ['card stats-card col'];
+    subDiv.innerHTML = `
     <div class="card-header">${header}</div>
     <div class="card-body"><h1>${numberWithCommas(value.toFixed(2))}</h1></div>`
+    div.appendChild(subDiv);
     return div;
 }
 
