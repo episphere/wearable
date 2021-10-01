@@ -14,7 +14,7 @@ const dashboard = async () => {
         const accessFitBitData = document.getElementById('accessFitBitData');
         accessFitBitData.addEventListener('click', async () => {
             const scopes = ['profile', 'activity', 'heartrate', 'location', 'nutrition', 'sleep', 'weight']
-            const oauthUrl = `https://www.fitbit.com/oauth2/authorize?client_id=23BC5Y&redirect_uri=${location.href}&response_type=token&scope=${scopes.join('%20')}`;
+            const oauthUrl = `https://www.fitbit.com/oauth2/authorize?client_id=23BC5Y&redirect_uri=${location.href}&response_type=token&scope=${scopes.join('%20')}&prompt=consent`;
             location.href = oauthUrl;
         })
     }
