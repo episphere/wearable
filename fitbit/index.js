@@ -36,88 +36,7 @@ const dashboard = async () => {
             </button>
         </div>
         `;
-        const resourceTypes = {
-            'activities': {
-                endPoint: '/list',
-                parameters: `?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`,
-                responseObj: 'activities',
-                location: false
-            },
-            'activities/steps': {
-                endPoint: '/date/today/1m',
-                responseObj: 'activities-steps',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'activities/calories': {
-                endPoint: '/date/today/1m',
-                responseObj: 'activities-calories',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'activities/distance': {
-                endPoint: '/date/today/1m',
-                responseObj: 'activities-distance',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'activities/floors': {
-                endPoint: '/date/today/1m',
-                responseObj: 'activities-floors',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'activities/elevation': {
-                endPoint: '/date/today/1m',
-                responseObj: 'activities-elevation',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'body/weight': {
-                endPoint: '/date/today/1m',
-                responseObj: 'body-weight',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'body/bmi': {
-                endPoint: '/date/today/1m',
-                responseObj: 'body-bmi',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'body/fat': {
-                endPoint: '/date/today/1m',
-                responseObj: 'body-fat',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'foods/log/caloriesIn': {
-                endPoint: '/date/today/1m',
-                responseObj: 'foods-log-caloriesIn',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'foods/log/water': {
-                endPoint: '/date/today/1m',
-                responseObj: 'foods-log-water',
-                x: 'dateTime',
-                y: 'value'
-            },
-            'activities/heart': {
-                endPoint: '/date/today/1m',
-                responseObj: 'activities-heart',
-                x: 'dateTime',
-                y: 'value',
-                nestedY: 'restingHeartRate',
-            },
-            'sleep': {
-                endPoint: '/list',
-                parameters: `?beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0&limit=100`,
-                responseObj: 'sleep',
-                x: 'dateOfSleep',
-                y: 'duration'
-            }
-        }
+        
         let jsonData = {
             fitBitId: getProfile.user.encodedId
         };
@@ -180,6 +99,89 @@ const dashboard = async () => {
             Plotly.newPlot(responseType, data, layout, config );
         }
         downloadJSONFile(jsonData);
+    }
+}
+
+const resourceTypes = {
+    'activities': {
+        endPoint: '/list',
+        parameters: `?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`,
+        responseObj: 'activities',
+        location: false
+    },
+    'activities/steps': {
+        endPoint: '/date/today/1m',
+        responseObj: 'activities-steps',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'activities/calories': {
+        endPoint: '/date/today/1m',
+        responseObj: 'activities-calories',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'activities/distance': {
+        endPoint: '/date/today/1m',
+        responseObj: 'activities-distance',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'activities/floors': {
+        endPoint: '/date/today/1m',
+        responseObj: 'activities-floors',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'activities/elevation': {
+        endPoint: '/date/today/1m',
+        responseObj: 'activities-elevation',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'body/weight': {
+        endPoint: '/date/today/1m',
+        responseObj: 'body-weight',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'body/bmi': {
+        endPoint: '/date/today/1m',
+        responseObj: 'body-bmi',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'body/fat': {
+        endPoint: '/date/today/1m',
+        responseObj: 'body-fat',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'foods/log/caloriesIn': {
+        endPoint: '/date/today/1m',
+        responseObj: 'foods-log-caloriesIn',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'foods/log/water': {
+        endPoint: '/date/today/1m',
+        responseObj: 'foods-log-water',
+        x: 'dateTime',
+        y: 'value'
+    },
+    'activities/heart': {
+        endPoint: '/date/today/1m',
+        responseObj: 'activities-heart',
+        x: 'dateTime',
+        y: 'value',
+        nestedY: 'restingHeartRate',
+    },
+    'sleep': {
+        endPoint: '/list',
+        parameters: `?beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0&limit=100`,
+        responseObj: 'sleep',
+        x: 'dateOfSleep',
+        y: 'duration'
     }
 }
 
