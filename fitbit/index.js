@@ -208,7 +208,7 @@ const resourceTypes = {
 
 const createCard = (header, value) => {
     const div = document.createElement('div');
-    div.classList = ['card stats-card col-md-3 m-2'];
+    div.classList = ['card stats-card col m-2'];
     div.innerHTML = `
     <div class="card-header">${header}</div>
     <div class="card-body"><h1>${numberWithCommas(value.toFixed(2))}</h1></div>`
