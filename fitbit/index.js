@@ -170,10 +170,12 @@ const dashboard = async () => {
               
             const layout = { 
                 title: responseType,
-                font: {size: 18}
+                font: {size: 18},
+                plot_bgcolor: 'rgba(0, 0, 0, 0)',
+                paper_bgcolor: 'rgba(0, 0, 0, 0)',
             };
               
-            const config = {responsive: true}
+            const config = {responsive: true, displayModeBar: false}
               
             Plotly.newPlot(responseType, data, layout, config );
         }
