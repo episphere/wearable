@@ -37,6 +37,26 @@ const dashboard = async () => {
         </div>
         `;
         
+        const getStats = await getData(`https://api.fitbit.com/1/user/-/activities.json`, access_token);
+        
+        const divBest = document.createElement('div');
+        divBest.classList = ['row'];
+
+        divBest.appendChild(createCard('# Best distance <i class="fas fa-road"></i>', getStats.best.total.distance.value));
+        divBest.appendChild(createCard('# Best floors <i class="fas fa-building"></i>', getStats.best.total.floors.value));
+        divBest.appendChild(createCard('# Best steps <i class="fas fa-shoe-prints"></i>', getStats.best.total.steps.value));
+        document.getElementById('mainDiv').appendChild(divBest);
+
+        const divLifeTime = document.createElement('div');
+        divLifeTime.classList = ['row'];
+
+        divLifeTime.appendChild(createCard('# Life time distance <i class="fas fa-road"></i>', getStats.lifetime.total.distance));
+        divLifeTime.appendChild(createCard('# Life time floors <i class="fas fa-building"></i>', getStats.lifetime.total.floors));
+        divLifeTime.appendChild(createCard('# Life time steps <i class="fas fa-shoe-prints"></i>', getStats.lifetime.total.steps));
+        document.getElementById('mainDiv').appendChild(divLifeTime);
+
+        console.log(getStats)
+
         let jsonData = {
             fitBitId: getProfile.user.encodedId
         };
@@ -69,7 +89,7 @@ const dashboard = async () => {
             
             if(!resourceTypes[type].x && !resourceTypes[type].y) continue;
             const div = document.createElement('div');
-            div.classList = ['card p-2 mt-2 mb-2'];
+            div.classList = ['card activity-card p-2 mt-2 mb-2'];
             const subDiv = document.createElement('div');
             subDiv.classList = ['card-body m-2'];
             subDiv.id = responseType;
@@ -101,6 +121,7 @@ const dashboard = async () => {
         downloadJSONFile(jsonData);
     }
 }
+
 
 const resourceTypes = {
     'activities': {
@@ -183,6 +204,19 @@ const resourceTypes = {
         x: 'dateOfSleep',
         y: 'duration'
     }
+}
+
+const createCard = (header, value) => {
+    const div = document.createElement('div');
+    div.classList = ['card stats-card col-md-3 m-2'];
+    div.innerHTML = `
+    <div class="card-header">${header}</div>
+    <div class="card-body"><h1>${numberWithCommas(value.toFixed(2))}</h1></div>`
+    return div;
+}
+
+const numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",").trim();
 }
 
 const downloadJSONFile = (data) => {

@@ -1,4 +1,13 @@
-.card {
+.activity-card {
     min-height: 350px;
     background-color: rgb(255, 247, 239);
+}
+
+.stats-card {
+    min-height: 150px;
+    background-color: rgb(239, 249, 255);
+}
+
+.card-header {
+    background-color: transparent;
 }
