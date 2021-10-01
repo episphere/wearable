@@ -111,6 +111,16 @@ const dashboard = async () => {
                 font: {size: 18},
                 plot_bgcolor: 'rgba(0, 0, 0, 0)',
                 paper_bgcolor: 'rgba(0, 0, 0, 0)',
+                xaxis: {
+                    title: {
+                            text: resourceTypes[type].labelX
+                        }
+                    },
+                yaxis: {
+                    title: {
+                        text: resourceTypes[type].labelY
+                    }
+                }
             };
               
             const config = {responsive: true, displayModeBar: false}
@@ -133,61 +143,41 @@ const resourceTypes = {
         endPoint: '/date/today/1m',
         responseObj: 'activities-steps',
         x: 'dateTime',
-        y: 'value'
+        y: 'value',
+        labelX: 'date',
+        labelY: 'steps'
     },
     'activities/calories': {
         endPoint: '/date/today/1m',
         responseObj: 'activities-calories',
         x: 'dateTime',
-        y: 'value'
+        y: 'value',
+        labelX: 'date',
+        labelY: 'calories'
     },
     'activities/distance': {
         endPoint: '/date/today/1m',
         responseObj: 'activities-distance',
         x: 'dateTime',
-        y: 'value'
+        y: 'value',
+        labelX: 'date',
+        labelY: 'distance'
     },
     'activities/floors': {
         endPoint: '/date/today/1m',
         responseObj: 'activities-floors',
         x: 'dateTime',
-        y: 'value'
+        y: 'value',
+        labelX: 'date',
+        labelY: 'floors'
     },
     'activities/elevation': {
         endPoint: '/date/today/1m',
         responseObj: 'activities-elevation',
         x: 'dateTime',
-        y: 'value'
-    },
-    'body/weight': {
-        endPoint: '/date/today/1m',
-        responseObj: 'body-weight',
-        x: 'dateTime',
-        y: 'value'
-    },
-    'body/bmi': {
-        endPoint: '/date/today/1m',
-        responseObj: 'body-bmi',
-        x: 'dateTime',
-        y: 'value'
-    },
-    'body/fat': {
-        endPoint: '/date/today/1m',
-        responseObj: 'body-fat',
-        x: 'dateTime',
-        y: 'value'
-    },
-    'foods/log/caloriesIn': {
-        endPoint: '/date/today/1m',
-        responseObj: 'foods-log-caloriesIn',
-        x: 'dateTime',
-        y: 'value'
-    },
-    'foods/log/water': {
-        endPoint: '/date/today/1m',
-        responseObj: 'foods-log-water',
-        x: 'dateTime',
-        y: 'value'
+        y: 'value',
+        labelX: 'date',
+        labelY: 'elevation'
     },
     'activities/heart': {
         endPoint: '/date/today/1m',
@@ -195,13 +185,57 @@ const resourceTypes = {
         x: 'dateTime',
         y: 'value',
         nestedY: 'restingHeartRate',
+        labelX: 'date',
+        labelY: 'heart rate'
+    },
+    'body/weight': {
+        endPoint: '/date/today/1m',
+        responseObj: 'body-weight',
+        x: 'dateTime',
+        y: 'value',
+        labelX: 'date',
+        labelY: 'weight'
+    },
+    'body/bmi': {
+        endPoint: '/date/today/1m',
+        responseObj: 'body-bmi',
+        x: 'dateTime',
+        y: 'value',
+        labelX: 'date',
+        labelY: 'BMI'
+    },
+    'body/fat': {
+        endPoint: '/date/today/1m',
+        responseObj: 'body-fat',
+        x: 'dateTime',
+        y: 'value',
+        labelX: 'date',
+        labelY: 'body fat'
+    },
+    'foods/log/caloriesIn': {
+        endPoint: '/date/today/1m',
+        responseObj: 'foods-log-caloriesIn',
+        x: 'dateTime',
+        y: 'value',
+        labelX: 'date',
+        labelY: 'calories in'
+    },
+    'foods/log/water': {
+        endPoint: '/date/today/1m',
+        responseObj: 'foods-log-water',
+        x: 'dateTime',
+        y: 'value',
+        labelX: 'date',
+        labelY: 'water'
     },
     'sleep': {
         endPoint: '/list',
         parameters: `?beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0&limit=100`,
         responseObj: 'sleep',
         x: 'dateOfSleep',
-        y: 'duration'
+        y: 'duration',
+        labelX: 'date',
+        labelY: 'sleep'
     }
 }
 
@@ -267,18 +301,8 @@ const xmltoJSON = (xml) => {
         obj[matched.replace('<', '')] = '';
     })
     console.log(obj)
-    
-
 }
 
 window.onload = () => {
     initFitBit();
 }
-
-// window.onhashchange = () => {
-//     const query = location.hash.replace('#', '');
-//     const parameters = getparameters(query);
-//     console.log(parameters)
-//     if(!localStorage.fitbit) localStorage.fitbit = JSON.stringify(parameters);
-//     dashboard();
-// }
