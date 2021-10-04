@@ -22,7 +22,12 @@ const dashboard = async () => {
         const access_token = JSON.parse(localStorage.fitbit).access_token;
         
         const getProfile = await getData(`https://api.fitbit.com/1/user/-/profile.json`, access_token);
-        document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile.user.fullName}
+        if(!getProfile) {
+            document.getElementById('mainDiv').innerHTML = 'Profile scope is missing! Please refresh to sign-in again!'
+            delete localStorage.fitbit;
+            return;
+        }
+        document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile ? getProfile.user.fullName : ''}
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
         <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
         <div class="mb-3">Now we are asking you to provide similar information by donating data available from your fitness trackers and mobile phone.  This includes sleep, physical activity, and location data.</div>
@@ -280,7 +285,7 @@ const getData = async (url, access_token) => {
             'Accept-Language': 'en_US'
         }
     })
-    if(response.status === 401) delete localStorage.fitbit;
+    if(response.status === 401 || response.status === 403) return false;
     return await response.json();
 }
 
