@@ -67,6 +67,7 @@ const dashboard = async () => {
         for(let type in resourceTypes) {
             const responseType = resourceTypes[type].responseObj;
             const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}${resourceTypes[type].endPoint}.json${resourceTypes[type].parameters ? resourceTypes[type].parameters : ''}`, access_token)
+            if(!getActivity) continue;
             jsonData[type] = {}
             if(getActivity.success === false) {
                 jsonData[type] = getActivity.errors[0].message;
