@@ -9,9 +9,12 @@ const initFitBit = () => {
 }
 
 const dashboard = async () => {
+    // const parameters = getParameters();
     if(!localStorage.fitbit){
         document.getElementById('accessFitBitData').hidden = false;
         const accessFitBitData = document.getElementById('accessFitBitData');
+        // window.history.replaceState({},'', './');
+        // console.log(parameters)
         accessFitBitData.addEventListener('click', async () => {
             const scopes = ['profile', 'activity', 'heartrate', 'location', 'nutrition', 'sleep', 'weight']
             const oauthUrl = `https://www.fitbit.com/oauth2/authorize?client_id=23BC5Y&redirect_uri=${location.href}&response_type=token&scope=${scopes.join('%20')}&prompt=consent`;
@@ -20,14 +23,12 @@ const dashboard = async () => {
     }
     else if(localStorage.fitbit && JSON.parse(localStorage.fitbit).access_token) {
         const access_token = JSON.parse(localStorage.fitbit).access_token;
-        
         const getProfile = await getData(`https://api.fitbit.com/1/user/-/profile.json`, access_token);
         if(!getProfile) {
             document.getElementById('mainDiv').innerHTML = 'Profile scope is missing! Please refresh to sign-in again!'
             delete localStorage.fitbit;
             return;
         }
-        const parameters = getParameters();
 
         let jsonData = {};
         if(parameters) jsonData = {...jsonData, ...parameters};
@@ -64,14 +65,13 @@ const dashboard = async () => {
         divLifeTime.appendChild(createCard('# Life time steps <i class="fas fa-shoe-prints"></i>', getStats.lifetime.total.steps));
         document.getElementById('mainDiv').appendChild(divLifeTime);
 
-        jsonData['Stats'] = getStats;
+        // jsonData['Stats'] = getStats;
         for(let type in resourceTypes) {
             const responseType = resourceTypes[type].responseObj;
             const getActivity = await getData(`https://api.fitbit.com/1/user/-/${type}${resourceTypes[type].endPoint}.json${resourceTypes[type].parameters ? resourceTypes[type].parameters : ''}`, access_token)
             if(!getActivity) continue;
             jsonData[type] = {}
             if(getActivity.success === false) {
-                jsonData[type] = getActivity.errors[0].message;
                 continue;
             }
             
@@ -89,8 +89,13 @@ const dashboard = async () => {
                     const locationXML = await getLocation.text();
                     jsonData[type][i].location = locationXML
                     i++;
-                    console.log(locationXML);
                 }
+            }
+
+            if(resourceTypes[type].pagination) {
+                const nextPage = getActivity.pagination.next;
+                const allActivities = await handleRecursiveCalls(nextPage, access_token)
+                jsonData[type] = [...jsonData[type], ...allActivities];
             }
             
             if(!resourceTypes[type].x && !resourceTypes[type].y) continue;
@@ -138,13 +143,22 @@ const dashboard = async () => {
     }
 }
 
+let allActivitiesList = [];
+const handleRecursiveCalls = async (url, access_token) => {
+    const response = await getData(url, access_token);
+    allActivitiesList = [...allActivitiesList, ...response.activities];
+    const next = response.pagination.next;
+    if(next) await handleRecursiveCalls(next, access_token)
+    else return allActivitiesList;
+}
 
 const resourceTypes = {
     'activities': {
         endPoint: '/list',
-        parameters: `?limit=20&sort=desc&beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0`,
+        parameters: `?limit=20&sort=asc&afterDate=${new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]}&offset=0`,
         responseObj: 'activities',
-        location: false
+        location: false,
+        pagination: true
     },
     'activities/steps': {
         endPoint: '/date/today/1m',
