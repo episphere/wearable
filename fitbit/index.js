@@ -29,9 +29,7 @@ const dashboard = async () => {
         }
         const parameters = getParameters();
 
-        let jsonData = {
-            fitBitId: getProfile.user.encodedId
-        };
+        let jsonData = {};
         if(parameters) jsonData = {...jsonData, ...parameters};
         document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile ? getProfile.user.fullName : ''}
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
