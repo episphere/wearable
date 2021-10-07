@@ -27,6 +27,12 @@ const dashboard = async () => {
             delete localStorage.fitbit;
             return;
         }
+        const parameters = getParameters();
+
+        let jsonData = {
+            fitBitId: getProfile.user.encodedId
+        };
+        if(parameters) jsonData = {...jsonData, ...parameters};
         document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile ? getProfile.user.fullName : ''}
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
         <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
@@ -60,9 +66,6 @@ const dashboard = async () => {
         divLifeTime.appendChild(createCard('# Life time steps <i class="fas fa-shoe-prints"></i>', getStats.lifetime.total.steps));
         document.getElementById('mainDiv').appendChild(divLifeTime);
 
-        let jsonData = {
-            fitBitId: getProfile.user.encodedId
-        };
         jsonData['Stats'] = getStats;
         for(let type in resourceTypes) {
             const responseType = resourceTypes[type].responseObj;
@@ -307,6 +310,26 @@ const xmltoJSON = (xml) => {
         obj[matched.replace('<', '')] = '';
     })
     console.log(obj)
+}
+
+const getParameters = (URL = window.location.href) => {
+    const hash = decodeURIComponent(URL);
+    const index = hash.indexOf('?');
+    if(index !== -1){
+        let query = hash.slice(index+1, hash.length);
+        query = query.replace(/#\?/g, "&")
+        if(query.indexOf('#') !== -1) query = query.slice(0, query.indexOf('#'))
+        const array = query.split('&');
+        let obj = {};
+        array.forEach(value => {
+            if(value.split('=')[1].trim() === "") return;
+            obj[value.split('=')[0]] = value.split('=')[1];
+        });
+        return obj;
+    }
+    else{
+        return null;
+    }
 }
 
 window.onload = () => {
