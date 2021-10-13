@@ -1,6 +1,10 @@
 const initFitBit = () => {
     const query = location.hash.replace('#', '');
     const parameters = getparameters(query);
+    if(Object.keys(parameters).length > 0 ){
+        localStorage.fitBitParameters = JSON.stringify(parameters);
+        window.history.replaceState({},'', './');
+    }
     if(!localStorage.fitbit && parameters.access_token) {
         localStorage.fitbit = JSON.stringify(parameters);
         window.history.replaceState({},'', './');
@@ -9,12 +13,10 @@ const initFitBit = () => {
 }
 
 const dashboard = async () => {
-    // const parameters = getParameters();
+    const parameters = getParameters();
     if(!localStorage.fitbit){
         document.getElementById('accessFitBitData').hidden = false;
         const accessFitBitData = document.getElementById('accessFitBitData');
-        // window.history.replaceState({},'', './');
-        // console.log(parameters)
         accessFitBitData.addEventListener('click', async () => {
             const scopes = ['profile', 'activity', 'heartrate', 'location', 'nutrition', 'sleep', 'weight']
             const oauthUrl = `https://www.fitbit.com/oauth2/authorize?client_id=23BC5Y&redirect_uri=${location.href}&response_type=token&scope=${scopes.join('%20')}&prompt=consent`;
@@ -31,6 +33,7 @@ const dashboard = async () => {
         }
 
         let jsonData = {};
+        if(localStorage.fitBitParameters) jsonData = {...JSON.parse(localStorage.fitBitParameters)}
         if(parameters) jsonData = {...jsonData, ...parameters};
         document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile ? getProfile.user.fullName : ''}
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
@@ -309,7 +312,7 @@ const getparameters = (query) => {
     const array = query.split('&');
     let obj = {};
     array.forEach(value => {
-        obj[value.split('=')[0]] = value.split('=')[1];
+        if(value) obj[value.split('=')[0]] = value.split('=')[1];
     });
     return obj;
 }
