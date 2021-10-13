@@ -1,19 +1,11 @@
 const initFitBit = () => {
-    const query = location.hash.replace('#', '');
-    const parameters = getparameters(query);
-    if(Object.keys(parameters).length > 0 ){
-        localStorage.fitBitParameters = JSON.stringify(parameters);
-        window.history.replaceState({},'', './');
-    }
-    if(!localStorage.fitbit && parameters.access_token) {
-        localStorage.fitbit = JSON.stringify(parameters);
-        window.history.replaceState({},'', './');
-    }
+    handleURLParameters();
+    const parameters = getParameters();
+    if(!localStorage.fitbit && parameters && parameters.access_token) localStorage.fitbit = JSON.stringify(parameters);
     dashboard();
 }
 
 const dashboard = async () => {
-    const parameters = getParameters();
     if(!localStorage.fitbit){
         document.getElementById('accessFitBitData').hidden = false;
         const accessFitBitData = document.getElementById('accessFitBitData');
@@ -34,7 +26,6 @@ const dashboard = async () => {
 
         let jsonData = {};
         if(localStorage.fitBitParameters) jsonData = {...JSON.parse(localStorage.fitBitParameters)}
-        if(parameters) jsonData = {...jsonData, ...parameters};
         document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile ? getProfile.user.fullName : ''}
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
         <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
@@ -143,6 +134,14 @@ const dashboard = async () => {
             Plotly.newPlot(responseType, data, layout, config );
         }
         downloadJSONFile(jsonData);
+    }
+}
+
+const handleURLParameters = () => {
+    const parameters = getParameters();
+    if(parameters && Object.keys(parameters).length > 0 ){
+        localStorage.fitBitParameters = JSON.stringify(parameters);
+        window.history.replaceState({},'', './');
     }
 }
 
@@ -308,15 +307,6 @@ const getData = async (url, access_token) => {
     return await response.json();
 }
 
-const getparameters = (query) => {
-    const array = query.split('&');
-    let obj = {};
-    array.forEach(value => {
-        if(value) obj[value.split('=')[0]] = value.split('=')[1];
-    });
-    return obj;
-}
-
 const xmltoJSON = (xml) => {
     let obj = {};
     xml = xml.substr(xml.lastIndexOf('?>') + 2, xml.length).replace(/\n/g,'')
@@ -349,4 +339,8 @@ const getParameters = (URL = window.location.href) => {
 
 window.onload = () => {
     initFitBit();
+}
+
+window.onhashchange = () => {
+    handleURLParameters();
 }
