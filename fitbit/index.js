@@ -29,7 +29,11 @@ const dashboard = async () => {
 
         let jsonData = {};
         if(localStorage.fitBitParameters) jsonData = {...JSON.parse(localStorage.fitBitParameters)}
-        document.getElementById('mainDiv').innerHTML = `Hello, ${getProfile ? getProfile.user.fullName : ''}
+        document.getElementById('mainDiv').innerHTML = `
+        <div class="row">
+            <div class="col">Hello, ${getProfile ? getProfile.user.fullName : ''}</div>
+            <div class="col-md-1 p-0 ml-auto"><button type="button" class="btn btn-outline-danger" id="logOut">Log out</button></div>
+        </div>
         <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
         <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
         <div class="mb-3">Now we are asking you to provide similar information by donating data available from your fitness trackers and mobile phone.  This includes sleep, physical activity, and location data.</div>
@@ -43,7 +47,7 @@ const dashboard = async () => {
             </button>
         </div>
         `;
-        
+        logOut();
         const getStats = await getData(`https://api.fitbit.com/1/user/-/activities.json`, access_token);
         
         const divBest = document.createElement('div');
@@ -145,6 +149,15 @@ const dashboard = async () => {
         }
         downloadJSONFile(jsonData);
     }
+}
+
+const logOut = () => {
+    const btn = document.getElementById('logOut');
+    btn.addEventListener('click', () => {
+        delete localStorage.fitBitParameters;
+        delete localStorage.fitbit
+        location.reload();
+    })
 }
 
 const handleURLParameters = () => {
