@@ -1,7 +1,10 @@
 const initFitBit = () => {
-    handleURLParameters();
     const parameters = getParameters();
-    if(!localStorage.fitbit && parameters && parameters.access_token) localStorage.fitbit = JSON.stringify(parameters);
+    if(!localStorage.fitbit && parameters && parameters.access_token) {
+        localStorage.fitbit = JSON.stringify(parameters);
+        window.history.replaceState({},'', './');
+    }
+    handleURLParameters();
     dashboard();
 }
 
@@ -71,25 +74,26 @@ const dashboard = async () => {
             
             jsonData[type] = getActivity[responseType];
             
-            if(resourceTypes[type].location) {
-                let i = 0;
-                for(let activity of getActivity[responseType]) {
-                    const getLocation = await fetch(activity.tcxLink, {
-                        method: 'GET',
-                        headers:{
-                            Authorization:'Bearer ' + access_token
-                        }
-                    })
-                    const locationXML = await getLocation.text();
-                    jsonData[type][i].location = locationXML
-                    i++;
-                }
-            }
+            // if(resourceTypes[type].location) {
+            //     let i = 0;
+            //     for(let activity of getActivity[responseType]) {
+            //         const getLocation = await fetch(activity.tcxLink, {
+            //             method: 'GET',
+            //             headers:{
+            //                 Authorization:'Bearer ' + access_token
+            //             }
+            //         })
+            //         const locationXML = await getLocation.text();
+            //         jsonData[type][i].location = locationXML
+            //         i++;
+            //     }
+            // }
 
             if(resourceTypes[type].pagination) {
                 const nextPage = getActivity.pagination.next;
-                const allActivities = await handleRecursiveCalls(nextPage, access_token)
-                jsonData[type] = [...jsonData[type], ...allActivities];
+                const allActivities = await handleRecursiveCalls(nextPage, access_token);
+                console.log(allActivities)
+                // jsonData[type] = [...jsonData[type], ...allActivities];
             }
             
             if(!resourceTypes[type].x && !resourceTypes[type].y) continue;
@@ -150,14 +154,14 @@ const handleRecursiveCalls = async (url, access_token) => {
     const response = await getData(url, access_token);
     allActivitiesList = [...allActivitiesList, ...response.activities];
     const next = response.pagination.next;
-    if(next) await handleRecursiveCalls(next, access_token)
-    else return allActivitiesList;
+    if(!next) return allActivitiesList;
+    await handleRecursiveCalls(next, access_token);
 }
 
 const resourceTypes = {
     'activities': {
         endPoint: '/list',
-        parameters: `?limit=20&sort=asc&afterDate=${new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]}&offset=0`,
+        parameters: `?limit=20&sort=asc&afterDate=${new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0]}&offset=0`,
         responseObj: 'activities',
         location: false,
         pagination: true
@@ -307,34 +311,22 @@ const getData = async (url, access_token) => {
     return await response.json();
 }
 
-const xmltoJSON = (xml) => {
-    let obj = {};
-    xml = xml.substr(xml.lastIndexOf('?>') + 2, xml.length).replace(/\n/g,'')
-    xml.replace(/<\w+/g, matched => {
-        const innerAttributes = xml.substr(xml.indexOf(matched), xml.indexOf('>')+1);
-        obj[matched.replace('<', '')] = '';
-    })
-    console.log(obj)
-}
-
 const getParameters = (URL = window.location.href) => {
-    const hash = decodeURIComponent(URL);
-    const index = hash.indexOf('?');
-    if(index !== -1){
-        let query = hash.slice(index+1, hash.length);
-        query = query.replace(/#\?/g, "&")
-        if(query.indexOf('#') !== -1) query = query.slice(0, query.indexOf('#'))
-        const array = query.split('&');
-        let obj = {};
-        array.forEach(value => {
-            if(value.split('=')[1].trim() === "") return;
-            obj[value.split('=')[0]] = value.split('=')[1];
-        });
-        return obj;
-    }
-    else{
-        return null;
-    }
+    const url = decodeURIComponent(URL);
+    const index = url.indexOf('?');
+    let query = '';
+    if(index !== -1) query = url.slice(index+1, url.length);
+    if(url.indexOf('#') !== -1) query = url.slice(url.indexOf('#')+1, url.length);
+    query = query.replace(/[#?]/, '').replace(/#\?/g, "&")
+    if(query.indexOf('#') !== -1) query = query.slice(0, query.indexOf('#'))
+    if(!query) return null;
+    const array = query.split('&');
+    let obj = {};
+    array.forEach(value => {
+        if(value.split('=')[1].trim() === "") return;
+        obj[value.split('=')[0]] = value.split('=')[1];
+    });
+    return obj;
 }
 
 window.onload = () => {
