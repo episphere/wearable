@@ -89,11 +89,17 @@ const dashboard = async () => {
             //     }
             // }
 
+            const handleRecursiveCalls = async (url, access_token) => {
+                const response = await getData(url, access_token);
+                jsonData[type] = [...jsonData[type], ...response.activities];
+                const next = response.pagination.next;
+                if(!next) return true;
+                await handleRecursiveCalls(next, access_token);
+            }
+
             if(resourceTypes[type].pagination) {
                 const nextPage = getActivity.pagination.next;
-                const allActivities = await handleRecursiveCalls(nextPage, access_token);
-                console.log(allActivities)
-                // jsonData[type] = [...jsonData[type], ...allActivities];
+                await handleRecursiveCalls(nextPage, access_token);
             }
             
             if(!resourceTypes[type].x && !resourceTypes[type].y) continue;
@@ -147,15 +153,6 @@ const handleURLParameters = () => {
         localStorage.fitBitParameters = JSON.stringify(parameters);
         window.history.replaceState({},'', './');
     }
-}
-
-let allActivitiesList = [];
-const handleRecursiveCalls = async (url, access_token) => {
-    const response = await getData(url, access_token);
-    allActivitiesList = [...allActivitiesList, ...response.activities];
-    const next = response.pagination.next;
-    if(!next) return allActivitiesList;
-    await handleRecursiveCalls(next, access_token);
 }
 
 const resourceTypes = {
@@ -257,7 +254,7 @@ const resourceTypes = {
     },
     'sleep': {
         endPoint: '/list',
-        parameters: `?beforeDate=${new Date().toISOString().split('T')[0]}&sort=desc&offset=0&limit=100`,
+        parameters: `?afterDate=${new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0]}&sort=asc&offset=0&limit=100`,
         responseObj: 'sleep',
         x: 'dateOfSleep',
         y: 'duration',
