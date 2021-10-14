@@ -22,8 +22,13 @@ const dashboard = async () => {
         const access_token = JSON.parse(localStorage.fitbit).access_token;
         const getProfile = await getData(`https://api.fitbit.com/1/user/-/profile.json`, access_token);
         if(!getProfile) {
-            document.getElementById('mainDiv').innerHTML = 'Profile scope is missing! Please refresh to sign-in again!'
-            delete localStorage.fitbit;
+            document.getElementById('mainDiv').innerHTML = `
+            <div class="row">
+                <div class="col">Profile scope is missing! Please sign-in again!</div>
+                <div class="col-md-1 p-0 ml-auto"><button type="button" class="btn btn-outline-danger" id="logOut">Log out</button></div>
+            </div>
+            `
+            logOut();
             return;
         }
 
@@ -154,11 +159,15 @@ const dashboard = async () => {
 const logOut = () => {
     const btn = document.getElementById('logOut');
     btn.addEventListener('click', () => {
-        revokeAccess()
-        delete localStorage.fitBitParameters;
-        delete localStorage.fitbit
-        location.reload();
+        handleLogOut()
     })
+}
+
+const handleLogOut = () => {
+    revokeAccess()
+    delete localStorage.fitBitParameters;
+    delete localStorage.fitbit
+    location.reload();
 }
 
 const revokeAccess = async () => {
@@ -331,7 +340,8 @@ const getData = async (url, access_token) => {
             'Accept-Language': 'en_US'
         }
     })
-    if(response.status === 401 || response.status === 403) return false;
+    if(response.status === 401) handleLogOut();
+    if(response.status === 403) return false;
     return await response.json();
 }
 
