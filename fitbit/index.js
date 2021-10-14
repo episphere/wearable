@@ -154,10 +154,24 @@ const dashboard = async () => {
 const logOut = () => {
     const btn = document.getElementById('logOut');
     btn.addEventListener('click', () => {
+        revokeAccess()
         delete localStorage.fitBitParameters;
         delete localStorage.fitbit
         location.reload();
     })
+}
+
+const revokeAccess = async () => {
+    const access_token = JSON.parse(localStorage.fitbit).access_token;
+    if(!access_token) return;
+    const revoked = await fetch('https://api.fitbit.com/oauth2/revoke', {
+        method: 'POST',
+        headers:{
+            Authorization: 'Basic MjNCQzVZOjNjOGQ4NzU1ODA0ZWRlNTk4MjYzMzBmMWQ1OTRiNjZm',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `token=${access_token}`
+    });
 }
 
 const handleURLParameters = () => {
