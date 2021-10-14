@@ -4,7 +4,6 @@ const initFitBit = () => {
         localStorage.fitbit = JSON.stringify(parameters);
         window.history.replaceState({},'', './');
     }
-    handleURLParameters();
     dashboard();
 }
 
@@ -13,6 +12,7 @@ const dashboard = async () => {
         document.getElementById('accessFitBitData').hidden = false;
         const accessFitBitData = document.getElementById('accessFitBitData');
         accessFitBitData.addEventListener('click', async () => {
+            handleURLParameters();
             const scopes = ['profile', 'activity', 'heartrate', 'nutrition', 'sleep', 'weight']
             const oauthUrl = `https://www.fitbit.com/oauth2/authorize?client_id=23BC5Y&redirect_uri=${location.href}&response_type=token&scope=${scopes.join('%20')}&prompt=consent`;
             location.href = oauthUrl;
@@ -341,8 +341,4 @@ const getParameters = (URL = window.location.href) => {
 
 window.onload = () => {
     initFitBit();
-}
-
-window.onhashchange = () => {
-    handleURLParameters();
 }
