@@ -54,22 +54,23 @@ const dashboard = async () => {
         `;
         logOut();
         const getStats = await getData(`https://api.fitbit.com/1/user/-/activities.json`, access_token);
-        
-        const divBest = document.createElement('div');
-        divBest.classList = ['row'];
-
-        divBest.appendChild(createCard('# Best distance <i class="fas fa-road"></i>', getStats.best.total.distance.value));
-        divBest.appendChild(createCard('# Best floors <i class="fas fa-building"></i>', getStats.best.total.floors.value));
-        divBest.appendChild(createCard('# Best steps <i class="fas fa-shoe-prints"></i>', getStats.best.total.steps.value));
-        document.getElementById('mainDiv').appendChild(divBest);
-
-        const divLifeTime = document.createElement('div');
-        divLifeTime.classList = ['row'];
-
-        divLifeTime.appendChild(createCard('# Life time distance <i class="fas fa-road"></i>', getStats.lifetime.total.distance));
-        divLifeTime.appendChild(createCard('# Life time floors <i class="fas fa-building"></i>', getStats.lifetime.total.floors));
-        divLifeTime.appendChild(createCard('# Life time steps <i class="fas fa-shoe-prints"></i>', getStats.lifetime.total.steps));
-        document.getElementById('mainDiv').appendChild(divLifeTime);
+        if(getStats) {
+            const divBest = document.createElement('div');
+            divBest.classList = ['row'];
+    
+            divBest.appendChild(createCard('# Best distance <i class="fas fa-road"></i>', getStats.best.total.distance.value));
+            divBest.appendChild(createCard('# Best floors <i class="fas fa-building"></i>', getStats.best.total.floors.value));
+            divBest.appendChild(createCard('# Best steps <i class="fas fa-shoe-prints"></i>', getStats.best.total.steps.value));
+            document.getElementById('mainDiv').appendChild(divBest);
+    
+            const divLifeTime = document.createElement('div');
+            divLifeTime.classList = ['row'];
+    
+            divLifeTime.appendChild(createCard('# Life time distance <i class="fas fa-road"></i>', getStats.lifetime.total.distance));
+            divLifeTime.appendChild(createCard('# Life time floors <i class="fas fa-building"></i>', getStats.lifetime.total.floors));
+            divLifeTime.appendChild(createCard('# Life time steps <i class="fas fa-shoe-prints"></i>', getStats.lifetime.total.steps));
+            document.getElementById('mainDiv').appendChild(divLifeTime);
+        }
 
         // jsonData['Stats'] = getStats;
         for(let type in resourceTypes) {
