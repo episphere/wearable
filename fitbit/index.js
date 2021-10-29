@@ -39,16 +39,13 @@ const dashboard = async () => {
             <div class="col">Hello, ${getProfile ? getProfile.user.fullName : ''}</div>
             <div class="col-md-1 p-0 ml-auto"><button type="button" class="btn btn-outline-danger" id="logOut">Log out</button></div>
         </div>
-        <div class="mb-3 mt-3">Thank you for participating in the PALS Study.</div>
-        <div class="mb-3">You have previously answered study questions about your sleep, physical activity, commuting patterns, and reported the location of your home and workplace.</div>
-        <div class="mb-3">Now we are asking you to provide similar information by donating data available from your fitness trackers and mobile phone.  This includes sleep, physical activity, and location data.</div>
+        
         <div class="mb-3">
-            To give permission for the study to access these data, please
             <button type="button" class="btn btn-outline-primary disabled" disabled id="donateData">
                 <div class="spinner-border" role="status" style="height: 1rem; width: 1rem;">
                     <span class="visually-hidden">Loading...</span>
                 </div> 
-                Donate
+                Download your data
             </button>
         </div>
         `;
@@ -321,7 +318,7 @@ const downloadJSONFile = (data) => {
     const donateData = document.getElementById('donateData');
     donateData.classList.remove('disabled');
     donateData.disabled = false;
-    donateData.innerHTML = 'Donate';
+    donateData.innerHTML = 'Download your data';
     donateData.addEventListener('click', () => {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
         const downloadAnchorNode = document.createElement('a');
