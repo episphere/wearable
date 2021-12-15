@@ -47,6 +47,7 @@ const dashboard = async () => {
                 </div> 
                 Donate your data
             </button>
+            <div id="error"></div>
         </div>
         `;
         logOut();
@@ -320,13 +321,16 @@ const downloadJSONFile = (data) => {
     donateData.disabled = false;
     donateData.innerHTML = 'Donate your data';
     donateData.addEventListener('click', async () => {
-        const fitBitParameters = JSON.parse(localStorage.fitBitParameters);
+        let fitBitParameters = localStorage.fitBitParameters;
+        if(!fitBitParameters) document.getElementById('error').innerHTML = 'Invitation code missing!';
+        const jsonParameters = JSON.parse(fitBitParameters);
+        if(!jsonParameters.code) document.getElementById('error').innerHTML = 'Invitation code missing!';
         const postData = await fetch('https://us-central1-nih-nci-dceg-episphere-dev.cloudfunctions.net/donate', {
             method: 'POST',
             headers: {
-                Authorization: 'Bearer '+fitBitParameters.code
+                Authorization: 'Bearer '+jsonParameters.code
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data);
         });
     })
 }
