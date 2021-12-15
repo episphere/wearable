@@ -330,7 +330,7 @@ const downloadJSONFile = (data) => {
             headers: {
                 Authorization: 'Bearer '+jsonParameters.code
             },
-            body: JSON.stringify(data);
+            body: JSON.stringify(data)
         });
     })
 }
