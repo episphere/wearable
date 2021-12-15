@@ -45,7 +45,7 @@ const dashboard = async () => {
                 <div class="spinner-border" role="status" style="height: 1rem; width: 1rem;">
                     <span class="visually-hidden">Loading...</span>
                 </div> 
-                Download your data
+                Donate your data
             </button>
         </div>
         `;
@@ -318,15 +318,16 @@ const downloadJSONFile = (data) => {
     const donateData = document.getElementById('donateData');
     donateData.classList.remove('disabled');
     donateData.disabled = false;
-    donateData.innerHTML = 'Download your data';
-    donateData.addEventListener('click', () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href",     dataStr);
-        downloadAnchorNode.setAttribute("download", "activity_data.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+    donateData.innerHTML = 'Donate your data';
+    donateData.addEventListener('click', async () => {
+        const fitBitParameters = JSON.parse(localStorage.fitBitParameters);
+        const postData = await fetch('https://us-central1-nih-nci-dceg-episphere-dev.cloudfunctions.net/donate', {
+            method: 'POST',
+            headers: {
+                Authorization: 'Bearer '+fitBitParameters.code
+            },
+            body: JSON.stringify(data)
+        });
     })
 }
 
