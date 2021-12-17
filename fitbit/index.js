@@ -322,9 +322,11 @@ const downloadJSONFile = (data) => {
     donateData.innerHTML = 'Donate your data';
     donateData.addEventListener('click', async () => {
         let fitBitParameters = localStorage.fitBitParameters;
-        if(!fitBitParameters) document.getElementById('error').innerHTML = 'Invitation code missing!';
         const jsonParameters = JSON.parse(fitBitParameters);
-        if(!jsonParameters.code) document.getElementById('error').innerHTML = 'Invitation code missing!';
+        if(!fitBitParameters || !jsonParameters) {
+            document.getElementById('error').innerHTML = 'Invitation code missing!';
+            return;
+        }
         const postData = await fetch('https://us-central1-nih-nci-dceg-episphere-dev.cloudfunctions.net/donate', {
             method: 'POST',
             headers: {
@@ -332,6 +334,7 @@ const downloadJSONFile = (data) => {
             },
             body: JSON.stringify(data)
         });
+        if(postData.status === 200) document.getElementById('error').innerHTML = 'Thanks for donating your data!';
     })
 }
 
