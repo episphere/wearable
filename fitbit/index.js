@@ -322,11 +322,11 @@ const downloadJSONFile = (data) => {
     donateData.innerHTML = 'Donate your data';
     donateData.addEventListener('click', async () => {
         let fitBitParameters = localStorage.fitBitParameters;
-        const jsonParameters = JSON.parse(fitBitParameters);
-        if(!fitBitParameters || !jsonParameters) {
+        if(!fitBitParameters) {
             document.getElementById('error').innerHTML = 'Invitation code missing!';
             return;
         }
+        const jsonParameters = JSON.parse(fitBitParameters);
         const postData = await fetch('https://us-central1-nih-nci-dceg-episphere-dev.cloudfunctions.net/donate', {
             method: 'POST',
             headers: {
